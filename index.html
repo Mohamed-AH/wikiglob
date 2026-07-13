@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WhalePulse 3D — Live BTC Whale Tracker</title>
+
+    <!-- Social sharing cards (X / Open Graph) -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="WhalePulse 3D — Live Bitcoin Whale Radar">
+    <meta property="og:description" content="Watch every Bitcoin whale move on-chain, live, on a 3D holographic globe. Real mempool data. No login. Pure signal.">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="WhalePulse 3D — Live Bitcoin Whale Radar">
+    <meta name="twitter:description" content="Watch every Bitcoin whale move on-chain, live, on a 3D holographic globe. Real mempool data. No login. Pure signal.">
+    <meta name="description" content="WhalePulse 3D: a live on-chain Bitcoin whale tracker. Every arc is a real unconfirmed BTC transaction, rendered on a 3D globe in your browser.">
     <!-- Tailwind CSS for sleek layout -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts for digital/tech typography -->
@@ -93,6 +102,9 @@
                     <span class="px-1.5 py-0.5 rounded text-[8px] font-bold bg-gray-900/60 text-gray-600 border border-gray-800 transition-all duration-300" id="badge-blockchain">BLOCKCHAIN.COM WS</span>
                     <span class="px-1.5 py-0.5 rounded text-[8px] font-bold bg-gray-900/60 text-gray-600 border border-gray-800 transition-all duration-300" id="badge-mempool">MEMPOOL.SPACE REST</span>
                     <span class="px-1.5 py-0.5 rounded text-[8px] font-bold bg-gray-900/60 text-gray-600 border border-gray-800 transition-all duration-300" id="badge-price">PRICE FEED</span>
+                    <button id="sound-toggle" class="px-1.5 py-0.5 rounded text-[8px] font-bold bg-gray-900/60 text-gray-500 border border-gray-800 hover:border-emerald-500/50 hover:text-emerald-400 transition-all duration-300 cursor-pointer" title="Sonar ping on whale movements">
+                        <i class="fa-solid fa-volume-xmark mr-0.5"></i>SONAR OFF
+                    </button>
                 </div>
             </div>
 
@@ -183,6 +195,20 @@
                         <div class="text-[10px] text-amber-400 tracking-wider font-bold uppercase" id="alert-subtitle">STANDBY FOR WHALE MOVEMENT</div>
                         <h3 class="text-base md:text-lg font-bold text-white tech-font uppercase tracking-tight" id="alert-title">Monitoring Bitcoin Mempool</h3>
                         <p class="text-xs text-gray-400" id="alert-desc">Watching every unconfirmed transaction on the network...</p>
+                    </div>
+                </div>
+
+                <!-- Share row: appears after the first whale is sighted -->
+                <div class="relative z-10 hidden items-center gap-2 mt-3 pt-2.5 border-t border-gray-800/60" id="share-row">
+                    <button id="share-x-btn" class="px-3 py-1.5 rounded text-[11px] font-bold bg-white text-black hover:bg-gray-200 transition-colors duration-200 flex items-center gap-1.5" title="Share this whale on X">
+                        <span class="text-sm leading-none">𝕏</span> SHARE WHALE
+                    </button>
+                    <button id="card-btn" class="px-3 py-1.5 rounded text-[11px] font-bold bg-gray-900/80 text-gray-300 border border-gray-700 hover:border-amber-500/60 hover:text-amber-300 transition-colors duration-200 flex items-center gap-1.5" title="Download a shareable whale card image">
+                        <i class="fa-solid fa-camera"></i> SAVE CARD
+                    </button>
+                    <div class="ml-auto text-right">
+                        <div class="text-[8px] text-gray-500 uppercase tracking-widest">Since last whale</div>
+                        <div class="text-xs font-bold text-gray-300 tech-font" id="whale-timer">—</div>
                     </div>
                 </div>
             </div>
@@ -709,7 +735,136 @@
 
             alertTitle.textContent = `${formatBtc(btc)} BTC MOVED${usd > 0 ? ` (${formatUsd(usd)})` : ''}`;
             alertDesc.textContent = `Unconfirmed transaction ${shortTxid(txid)} broadcast to the Bitcoin network.`;
+
+            lastWhale = { btc, usd, txid, isMega, ts: Date.now() };
+            shareRow.classList.remove("hidden");
+            shareRow.classList.add("flex");
         }
+
+        // --- 6b. VIRAL LOOP: SHARE ON X, WHALE CARDS, WHALE TIMER, SONAR ---
+        let lastWhale = null;
+
+        const shareRow = document.getElementById("share-row");
+        const whaleTimerEl = document.getElementById("whale-timer");
+
+        function shareOnX() {
+            if (!lastWhale) return;
+            const w = lastWhale;
+            const usdPart = w.usd > 0 ? ` (${formatUsd(w.usd)})` : '';
+            const label = w.isMega ? '🚨 MEGA WHALE' : '🐋 WHALE';
+            const text = `${label} ALERT: ${formatBtc(w.btc)} BTC${usdPart} just moved on the Bitcoin network.\n\nCaught it live on WhalePulse 3D 🌍📡\n\n#Bitcoin #BTC #WhaleAlert`;
+            window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank', 'noopener');
+        }
+
+        // Renders a 1200x675 (X-optimized 16:9) shareable card and downloads it.
+        function downloadWhaleCard() {
+            if (!lastWhale) return;
+            const w = lastWhale;
+            const c = document.createElement("canvas");
+            c.width = 1200;
+            c.height = 675;
+            const ctx = c.getContext("2d");
+
+            const accent = w.isMega ? "#f97316" : "#fbbf24";
+
+            ctx.fillStyle = "#030712";
+            ctx.fillRect(0, 0, c.width, c.height);
+
+            const glow = ctx.createRadialGradient(600, 340, 50, 600, 340, 620);
+            glow.addColorStop(0, w.isMega ? "rgba(249,115,22,0.16)" : "rgba(251,191,36,0.13)");
+            glow.addColorStop(1, "rgba(3,7,18,0)");
+            ctx.fillStyle = glow;
+            ctx.fillRect(0, 0, c.width, c.height);
+
+            ctx.strokeStyle = "rgba(16,185,129,0.08)";
+            ctx.lineWidth = 1;
+            for (let x = 0; x <= c.width; x += 60) {
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, c.height); ctx.stroke();
+            }
+            for (let y = 0; y <= c.height; y += 60) {
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(c.width, y); ctx.stroke();
+            }
+
+            ctx.strokeStyle = accent;
+            ctx.lineWidth = 6;
+            ctx.strokeRect(3, 3, c.width - 6, c.height - 6);
+
+            ctx.textAlign = "center";
+            ctx.fillStyle = accent;
+            ctx.font = "bold 34px 'Share Tech Mono', monospace";
+            ctx.fillText(w.isMega ? "🚨 MEGA WHALE ON-CHAIN MOVEMENT" : "🐋 WHALE ON-CHAIN MOVEMENT", 600, 130);
+
+            ctx.fillStyle = "#ffffff";
+            ctx.font = "bold 120px 'Share Tech Mono', monospace";
+            ctx.fillText(`${formatBtc(w.btc)} BTC`, 600, 290);
+
+            if (w.usd > 0) {
+                ctx.fillStyle = "#9ca3af";
+                ctx.font = "bold 52px 'Share Tech Mono', monospace";
+                ctx.fillText(`≈ ${formatUsd(w.usd)}`, 600, 370);
+            }
+
+            ctx.fillStyle = "#6b7280";
+            ctx.font = "28px 'JetBrains Mono', monospace";
+            ctx.fillText(`TX ${shortTxid(w.txid)}`, 600, 450);
+            ctx.fillText(new Date(w.ts).toUTCString(), 600, 495);
+
+            ctx.fillStyle = "#10b981";
+            ctx.font = "bold 30px 'Share Tech Mono', monospace";
+            ctx.fillText("WHALEPULSE 3D — LIVE BITCOIN WHALE RADAR", 600, 590);
+
+            const a = document.createElement("a");
+            a.download = `whalepulse-${(w.txid || 'whale').slice(0, 8)}.png`;
+            a.href = c.toDataURL("image/png");
+            a.click();
+        }
+
+        document.getElementById("share-x-btn").addEventListener("click", shareOnX);
+        document.getElementById("card-btn").addEventListener("click", downloadWhaleCard);
+
+        // Anticipation ticker: how long since the last whale surfaced
+        setInterval(() => {
+            if (!lastWhale) return;
+            const s = Math.floor((Date.now() - lastWhale.ts) / 1000);
+            const mm = String(Math.floor(s / 60)).padStart(2, "0");
+            const ss = String(s % 60).padStart(2, "0");
+            whaleTimerEl.textContent = `T+${mm}:${ss}`;
+        }, 1000);
+
+        // Sonar ping (WebAudio, no assets). Off by default; browsers require a
+        // user gesture before audio anyway, so the toggle doubles as the unlock.
+        let audioCtx = null;
+        let sonarOn = false;
+
+        function playSonar(isMega) {
+            if (!sonarOn || !audioCtx) return;
+            const t = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(isMega ? 440 : 660, t);
+            osc.frequency.exponentialRampToValueAtTime(isMega ? 180 : 330, t + 0.7);
+            gain.gain.setValueAtTime(0.18, t);
+            gain.gain.exponentialRampToValueAtTime(0.0001, t + 1.0);
+            osc.connect(gain).connect(audioCtx.destination);
+            osc.start(t);
+            osc.stop(t + 1.05);
+        }
+
+        document.getElementById("sound-toggle").addEventListener("click", function () {
+            sonarOn = !sonarOn;
+            if (sonarOn && !audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
+            this.innerHTML = sonarOn
+                ? '<i class="fa-solid fa-volume-high mr-0.5"></i>SONAR ON'
+                : '<i class="fa-solid fa-volume-xmark mr-0.5"></i>SONAR OFF';
+            this.className = sonarOn
+                ? "px-1.5 py-0.5 rounded text-[8px] font-bold bg-emerald-950/40 text-emerald-400 border border-emerald-500/30 transition-all duration-300 cursor-pointer"
+                : "px-1.5 py-0.5 rounded text-[8px] font-bold bg-gray-900/60 text-gray-500 border border-gray-800 hover:border-emerald-500/50 hover:text-emerald-400 transition-all duration-300 cursor-pointer";
+            if (sonarOn) playSonar(false);
+        });
 
         // --- 7. BTC PRICE FEED (Coinbase primary, Binance fallback) ---
         let btcUsdPrice = 0;
@@ -795,6 +950,7 @@
                 whaleCountEl.textContent = whaleTxCount;
                 logToTerminal(`🐋 MEGA WHALE | ${formatBtc(btc)} BTC${usdSuffix} | ${shortTxid(txid)} [${source}]`, "MEGA");
                 triggerWhaleAlert(btc, usd, txid, true);
+                playSonar(true);
                 triggerWhaleBeam(endHub, btc);
                 lockCameraToWhale(endHub.pos);
             } else if (btc >= WHALE_BTC) {
@@ -802,6 +958,7 @@
                 whaleCountEl.textContent = whaleTxCount;
                 logToTerminal(`🐋 WHALE | ${formatBtc(btc)} BTC${usdSuffix} | ${shortTxid(txid)} [${source}]`, "WHALE");
                 triggerWhaleAlert(btc, usd, txid, false);
+                playSonar(false);
             } else if (btc >= MIN_LOG_BTC) {
                 logToTerminal(`TX | ${formatBtc(btc)} BTC${usdSuffix} | ${shortTxid(txid)} [${source}]`, "TX");
             }
