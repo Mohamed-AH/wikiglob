@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhalePulse 3D — Live BTC Whale Tracker</title>
+    <!-- Tailwind CSS for sleek layout -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts for digital/tech typography -->
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <!-- FontAwesome for technical icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #030712;
+            font-family: 'JetBrains+Mono', monospace;
+            color: #f3f4f6;
+            user-select: none;
+        }
+        .tech-font {
+            font-family: 'Share Tech Mono', monospace;
+        }
+        /* Custom scrollbar for HUD log */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(3, 7, 18, 0.5);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(34, 197, 94, 0.3);
+            border-radius: 2px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(34, 197, 94, 0.6);
+        }
+        /* Glassmorphism panel styling */
+        .glass-panel {
+            background: rgba(10, 15, 30, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+        .glow-green {
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.4);
+        }
+        .glow-amber {
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.5);
+        }
+        .glow-orange {
+            box-shadow: 0 0 20px rgba(249, 115, 22, 0.6);
+        }
+        /* Scanning line effect */
+        .scanline::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 2;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="scanline">
+
+    <!-- Primary Canvas -->
+    <div id="canvas-container" class="absolute inset-0 w-full h-full z-0"></div>
+
+    <!-- UI Overlay - HUD -->
+    <div class="absolute inset-0 pointer-events-none z-10 flex flex-col justify-between p-4 md:p-6 select-none">
+
+        <!-- TOP ROW: Title and System State -->
+        <div class="flex flex-col md:flex-row justify-between items-start w-full gap-4">
+            <!-- Title block -->
+            <div class="glass-panel pointer-events-auto p-4 rounded-lg flex flex-col gap-1 border-l-4 border-l-emerald-500 min-w-[300px]">
+                <div class="flex items-center gap-2">
+                    <span class="flex h-3 w-3 relative">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" id="status-pulse-ping"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500" id="status-pulse-light"></span>
+                    </span>
+                    <span class="text-xs text-emerald-400 font-bold tracking-wider uppercase" id="protocol-status">CONNECTING TO BITCOIN NETWORK...</span>
+                </div>
+                <h1 class="text-xl md:text-2xl font-bold tracking-tight text-white tech-font">WHALEPULSE <span class="text-emerald-500 font-light">3D</span></h1>
+                <p class="text-[10px] text-gray-400 tracking-wider">LIVE ON-CHAIN BTC WHALE RADAR</p>
+
+                <!-- Data Source Status Indicators -->
+                <div class="flex flex-wrap gap-1.5 mt-2.5" id="active-sources-container">
+                    <span class="px-1.5 py-0.5 rounded text-[8px] font-bold bg-gray-900/60 text-gray-600 border border-gray-800 transition-all duration-300" id="badge-blockchain">BLOCKCHAIN.COM WS</span>
+                    <span class="px-1.5 py-0.5 rounded text-[8px] font-bold bg-gray-900/60 text-gray-600 border border-gray-800 transition-all duration-300" id="badge-mempool">MEMPOOL.SPACE REST</span>
+                    <span class="px-1.5 py-0.5 rounded text-[8px] font-bold bg-gray-900/60 text-gray-600 border border-gray-800 transition-all duration-300" id="badge-price">PRICE FEED</span>
+                </div>
+            </div>
+
+            <!-- Stats Overview -->
+            <div class="glass-panel pointer-events-auto p-4 rounded-lg flex flex-col gap-3 min-w-[220px] text-right border-r-4 border-r-blue-500">
+                <div>
+                    <div class="text-[10px] text-gray-400 uppercase tracking-widest">BTC / USD</div>
+                    <div class="text-lg md:text-xl font-bold text-blue-400 tech-font" id="btc-price">$—</div>
+                </div>
+                <div>
+                    <div class="text-[10px] text-gray-400 uppercase tracking-widest">1M TRACKED VOL (&ge;1 BTC TXS)</div>
+                    <div class="text-base font-bold text-white tech-font" id="agg-vol">0.00 BTC</div>
+                    <div class="text-[10px] text-gray-500 tech-font" id="agg-vol-usd">$0</div>
+                </div>
+                <div class="grid grid-cols-2 gap-2 text-left pt-2 border-t border-gray-800">
+                    <div>
+                        <div class="text-[9px] text-amber-400 font-bold uppercase">WHALE TXS</div>
+                        <div class="text-sm font-bold text-white tech-font" id="whale-count">0</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-[9px] text-orange-400 font-bold uppercase">LARGEST TX</div>
+                        <div class="text-sm font-bold text-white tech-font" id="largest-tx">0 BTC</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MIDDLE SIDEBARS: Floating Metrics -->
+        <div class="flex justify-between items-center w-full my-auto pointer-events-none">
+            <!-- Left Data Column -->
+            <div class="hidden md:flex flex-col gap-3 glass-panel pointer-events-auto p-4 rounded-lg max-w-xs">
+                <div class="text-xs text-gray-400 border-b border-gray-800 pb-1 font-bold">NETWORK RELAY NODES</div>
+                <div class="flex flex-col gap-2 text-[11px]" id="hubs-list">
+                    <!-- Javascript will populate coordinates -->
+                </div>
+                <div class="text-[9px] text-gray-600 italic border-t border-gray-800 pt-1.5">
+                    Node placement is illustrative — Bitcoin transactions carry no geographic origin.
+                </div>
+            </div>
+
+            <!-- Right Visual Key / Instructions -->
+            <div class="glass-panel pointer-events-auto p-4 rounded-lg flex flex-col gap-3 max-w-xs text-xs">
+                <div class="text-xs text-gray-400 border-b border-gray-800 pb-1 font-bold uppercase">Legend & Intel</div>
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-green-500 shadow-sm shadow-green-500"></span>
+                    <span class="text-gray-300">Transaction &ge; 1 BTC (arc)</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-sm shadow-amber-400"></span>
+                    <span class="text-amber-300 font-bold">Whale &ge; 50 BTC (arc + alert)</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-orange-500 shadow-sm shadow-orange-500"></span>
+                    <span class="text-orange-400 font-bold">Mega Whale &ge; 500 BTC (beam)</span>
+                </div>
+                <div class="text-[10px] text-gray-500 mt-2 border-t border-gray-800 pt-2 italic">
+                    Every event is a real unconfirmed Bitcoin transaction observed in the mempool.
+                    Drag to rotate globe. Scroll to zoom. Camera locks on mega whale movements.
+                </div>
+            </div>
+        </div>
+
+        <!-- BOTTOM ROW: Live Stream Feed & Alert Overlay -->
+        <div class="flex flex-col lg:flex-row gap-4 w-full justify-between items-stretch">
+
+            <!-- Realtime Terminal Log -->
+            <div class="glass-panel pointer-events-auto p-4 rounded-lg flex-1 min-h-[140px] max-h-[180px] flex flex-col gap-2 overflow-hidden">
+                <div class="flex justify-between items-center border-b border-gray-800 pb-1.5">
+                    <div class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-terminal animate-pulse"></i> LIVE ON-CHAIN TRANSACTION FEED
+                    </div>
+                    <span class="text-[9px] text-gray-500" id="feed-speed">0 tx/sec</span>
+                </div>
+                <div id="terminal-feed" class="flex-1 overflow-y-auto flex flex-col gap-1 text-[11px] font-mono pr-2">
+                    <!-- Logs populated via JavaScript -->
+                </div>
+            </div>
+
+            <!-- Whale Flash Notification -->
+            <div class="glass-panel pointer-events-auto p-4 rounded-lg w-full lg:max-w-md flex flex-col justify-center border border-dashed border-amber-500/20 relative overflow-hidden" id="mega-alert-panel">
+                <div class="absolute inset-0 bg-gradient-to-r from-amber-950/10 to-transparent pointer-events-none"></div>
+
+                <div class="relative z-10 flex items-center gap-4">
+                    <div class="w-12 h-12 rounded bg-amber-950/40 border border-amber-500/30 flex items-center justify-center text-amber-500" id="alert-icon-container">
+                        <i class="fa-solid fa-water text-xl animate-bounce" id="alert-icon"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="text-[10px] text-amber-400 tracking-wider font-bold uppercase" id="alert-subtitle">STANDBY FOR WHALE MOVEMENT</div>
+                        <h3 class="text-base md:text-lg font-bold text-white tech-font uppercase tracking-tight" id="alert-title">Monitoring Bitcoin Mempool</h3>
+                        <p class="text-xs text-gray-400" id="alert-desc">Watching every unconfirmed transaction on the network...</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Background Matrix Ambience -->
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(16,24,48,0.2),transparent_70%)] pointer-events-none z-[1]"></div>
+
+    <!-- Import Libraries (Three.js, OrbitControls) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <script>
+        // --- 1. CONFIGURATION & CONSTANTS ---
+
+        // Data source endpoints (all free, no API key, CORS/WS-open):
+        //  - Blockchain.com public WebSocket: streams every unconfirmed BTC tx
+        //  - mempool.space REST: recent mempool transactions (polling failsafe)
+        //  - Coinbase / Binance public REST: BTC-USD spot price
+        const BLOCKCHAIN_WS_URL = "wss://ws.blockchain.info/inv";
+        const MEMPOOL_RECENT_URL = "https://mempool.space/api/mempool/recent";
+        const COINBASE_SPOT_URL = "https://api.coinbase.com/v2/prices/BTC-USD/spot";
+        const BINANCE_PRICE_URL = "https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT";
+
+        // Thresholds (in BTC)
+        const MIN_VISUAL_BTC = 1;    // draw an arc + count toward tracked volume
+        const MIN_LOG_BTC = 2;       // print to the terminal feed
+        const WHALE_BTC = 50;        // whale: highlighted arc + HUD alert
+        const MEGA_WHALE_BTC = 500;  // mega whale: vertical beam + camera lock
+
+        const SATS_PER_BTC = 1e8;
+
+        const HUB_COORDINATES = [
+            { name: "New York", lat: 40.7128, lon: -74.0060, color: 0x3b82f6 },
+            { name: "London", lat: 51.5074, lon: -0.1278, color: 0x8b5cf6 },
+            { name: "Tokyo", lat: 35.6762, lon: 139.6503, color: 0xec4899 },
+            { name: "Singapore", lat: 1.3521, lon: 103.8198, color: 0x14b8a6 },
+            { name: "Frankfurt", lat: 50.1109, lon: 8.6821, color: 0xf59e0b },
+            { name: "Sydney", lat: -33.8688, lon: 151.2093, color: 0x6366f1 },
+            { name: "Sao Paulo", lat: -23.5505, lon: -46.6333, color: 0x10b981 },
+            { name: "Dubai", lat: 25.2048, lon: 55.2708, color: 0x06b6d4 }
+        ];
+
+        const GLOBE_RADIUS = 30;
+
+        // UI Setup
+        const hubsListContainer = document.getElementById("hubs-list");
+        HUB_COORDINATES.forEach(hub => {
+            const el = document.createElement("div");
+            el.className = "flex items-center justify-between text-gray-400 gap-4 hover:text-white transition-colors duration-200";
+            el.innerHTML = `
+                <span class="flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full" style="background-color: #${hub.color.toString(16).padStart(6, '0')}"></span>
+                    ${hub.name}
+                </span>
+                <span class="text-[10px] text-gray-600 font-mono">${hub.lat.toFixed(1)}, ${hub.lon.toFixed(1)}</span>
+            `;
+            hubsListContainer.appendChild(el);
+        });
+
+        // --- 2. THREE.JS BOILERPLATE & SETUP ---
+        const container = document.getElementById("canvas-container");
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x030712, 0.0035);
+
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
+        camera.position.set(0, 45, 85);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.shadowMap.enabled = false;
+        container.appendChild(renderer.domElement);
+
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.maxDistance = 150;
+        controls.minDistance = 35;
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 0.6; // Slow majestic rotation
+
+        // Ambient Lights & Directional Accent Lights
+        const ambientLight = new THREE.AmbientLight(0x0f172a, 1.5);
+        scene.add(ambientLight);
+
+        const dirLight1 = new THREE.DirectionalLight(0x38bdf8, 2.5);
+        dirLight1.position.set(50, 50, 50);
+        scene.add(dirLight1);
+
+        const dirLight2 = new THREE.DirectionalLight(0xf43f5e, 1.2);
+        dirLight2.position.set(-50, -50, -50);
+        scene.add(dirLight2);
+
+        // --- 3. GEOMETRY CREATION (GLOBE & GRID) ---
+        const globeGroup = new THREE.Group();
+        scene.add(globeGroup);
+
+        // Base Semi-Translucent Sphere
+        const baseSphereGeo = new THREE.SphereGeometry(GLOBE_RADIUS - 0.2, 64, 64);
+        const baseSphereMat = new THREE.MeshPhongMaterial({
+            color: 0x070b19,
+            transparent: true,
+            opacity: 0.85,
+            shininess: 40,
+            specular: 0x1e293b,
+            bumpScale: 0.1
+        });
+        const baseSphere = new THREE.Mesh(baseSphereGeo, baseSphereMat);
+        globeGroup.add(baseSphere);
+
+        // Holographic Wireframe Grid Outer Mesh
+        const gridGeo = new THREE.SphereGeometry(GLOBE_RADIUS, 36, 18);
+        const gridMat = new THREE.MeshBasicMaterial({
+            color: 0x1e293b,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.2,
+            blending: THREE.AdditiveBlending
+        });
+        const gridMesh = new THREE.Mesh(gridGeo, gridMat);
+        globeGroup.add(gridMesh);
+
+        // Adding Subtle Grid Accents
+        const gridLatLongMat = new THREE.MeshBasicMaterial({
+            color: 0x059669,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.1,
+            blending: THREE.AdditiveBlending
+        });
+        const gridLatLong = new THREE.Mesh(new THREE.SphereGeometry(GLOBE_RADIUS + 0.1, 72, 36), gridLatLongMat);
+        globeGroup.add(gridLatLong);
+
+        // Procedural Continents Canvas Texture (Sleek tech glowing points)
+        function createContinentTexture() {
+            const canvas = document.createElement("canvas");
+            canvas.width = 1024;
+            canvas.height = 512;
+            const ctx = canvas.getContext("2d");
+            ctx.fillStyle = "rgba(0,0,0,0)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = "rgba(16, 185, 129, 0.2)"; // Emerald
+            ctx.strokeStyle = "rgba(16, 185, 129, 0.4)";
+            ctx.lineWidth = 1;
+
+            // Simple procedurally simulated continent map nodes
+            const landClusters = [
+                { x: 300, y: 180, r: 120 }, // NA
+                { x: 420, y: 320, r: 80 },  // SA
+                { x: 520, y: 150, r: 100 }, // Europe
+                { x: 560, y: 260, r: 110 }, // Africa
+                { x: 740, y: 180, r: 140 }, // Asia
+                { x: 840, y: 340, r: 70 }   // Australia
+            ];
+
+            // Render tech circuit matrix on continents
+            for (let i = 0; i < canvas.width; i += 8) {
+                for (let j = 0; j < canvas.height; j += 8) {
+                    let onLand = false;
+                    for (const cluster of landClusters) {
+                        const dist = Math.hypot(i - cluster.x, j - cluster.y);
+                        if (dist < cluster.r * (0.7 + Math.sin(i * 0.05) * 0.1 + Math.cos(j * 0.05) * 0.1)) {
+                            onLand = true;
+                            break;
+                        }
+                    }
+
+                    if (onLand) {
+                        const noise = Math.random();
+                        if (noise > 0.65) {
+                            ctx.fillStyle = noise > 0.96 ? "rgba(16, 185, 129, 0.95)" : "rgba(10, 80, 50, 0.75)";
+                            ctx.fillRect(i, j, 2, 2);
+                        }
+                    }
+                }
+            }
+
+            return new THREE.CanvasTexture(canvas);
+        }
+
+        const continentTex = createContinentTexture();
+        const continentMat = new THREE.MeshBasicMaterial({
+            map: continentTex,
+            transparent: true,
+            opacity: 0.85,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false
+        });
+        const continentMesh = new THREE.Mesh(new THREE.SphereGeometry(GLOBE_RADIUS + 0.15, 64, 64), continentMat);
+        globeGroup.add(continentMesh);
+
+        // Relay Node Markers (visual anchors for transaction arcs)
+        const hubGroup = new THREE.Group();
+        globeGroup.add(hubGroup);
+
+        const hubGeometry = new THREE.SphereGeometry(0.5, 16, 16);
+        const hubMap = new Map();
+
+        HUB_COORDINATES.forEach(hub => {
+            const pos = latLongToVector3(hub.lat, hub.lon, GLOBE_RADIUS + 0.2);
+            const mat = new THREE.MeshBasicMaterial({
+                color: hub.color,
+                transparent: true,
+                opacity: 0.9
+            });
+            const mesh = new THREE.Mesh(hubGeometry, mat);
+            mesh.position.copy(pos);
+            hubGroup.add(mesh);
+
+            // Pulse Ring for Hubs
+            const ringGeo = new THREE.RingGeometry(0.7, 1.0, 16);
+            const ringMat = new THREE.MeshBasicMaterial({
+                color: hub.color,
+                transparent: true,
+                opacity: 0.6,
+                side: THREE.DoubleSide,
+                blending: THREE.AdditiveBlending
+            });
+            const ring = new THREE.Mesh(ringGeo, ringMat);
+            ring.position.copy(pos);
+            ring.lookAt(new THREE.Vector3(0, 0, 0)); // Orient flat against sphere
+            hubGroup.add(ring);
+
+            hubMap.set(hub.name, { pos, mesh, ring, config: hub });
+        });
+
+        // Background Starfield System
+        const starGeo = new THREE.BufferGeometry();
+        const starCount = 3000;
+        const starPos = new Float32Array(starCount * 3);
+        const starColors = new Float32Array(starCount * 3);
+
+        for (let i = 0; i < starCount * 3; i += 3) {
+            const radius = 180 + Math.random() * 120;
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.acos((Math.random() * 2) - 1);
+
+            starPos[i] = radius * Math.sin(phi) * Math.cos(theta);
+            starPos[i + 1] = radius * Math.sin(phi) * Math.sin(theta);
+            starPos[i + 2] = radius * Math.cos(phi);
+
+            const r = Math.random();
+            if (r > 0.8) {
+                starColors[i] = 0.4; starColors[i+1] = 0.8; starColors[i+2] = 1.0;
+            } else if (r > 0.6) {
+                starColors[i] = 0.6; starColors[i+1] = 0.4; starColors[i+2] = 0.9;
+            } else {
+                starColors[i] = 0.7; starColors[i+1] = 0.7; starColors[i+2] = 0.7;
+            }
+        }
+        starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+        starGeo.setAttribute('color', new THREE.BufferAttribute(starColors, 3));
+
+        const starMat = new THREE.PointsMaterial({
+            size: 0.6,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.75,
+            sizeAttenuation: true
+        });
+        const starField = new THREE.Points(starGeo, starMat);
+        scene.add(starField);
+
+        // --- 4. UTILITIES ---
+        function latLongToVector3(lat, lon, radius) {
+            const phi = (90 - lat) * (Math.PI / 180);
+            const theta = (lon + 180) * (Math.PI / 180);
+
+            return new THREE.Vector3(
+                -(radius * Math.sin(phi) * Math.sin(theta)),
+                radius * Math.cos(phi),
+                radius * Math.sin(phi) * Math.cos(theta)
+            );
+        }
+
+        function pickTwoHubs() {
+            const a = HUB_COORDINATES[Math.floor(Math.random() * HUB_COORDINATES.length)];
+            let b = HUB_COORDINATES[Math.floor(Math.random() * HUB_COORDINATES.length)];
+            while (a === b) {
+                b = HUB_COORDINATES[Math.floor(Math.random() * HUB_COORDINATES.length)];
+            }
+            return [hubMap.get(a.name), hubMap.get(b.name)];
+        }
+
+        function formatBtc(btc) {
+            if (btc >= 1000) return btc.toLocaleString('en-US', { maximumFractionDigits: 0 });
+            if (btc >= 10) return btc.toFixed(1);
+            return btc.toFixed(2);
+        }
+
+        function formatUsd(usd) {
+            if (usd >= 1000000) return `$${(usd / 1000000).toFixed(2)}M`;
+            if (usd >= 1000) return `$${(usd / 1000).toFixed(0)}K`;
+            return `$${usd.toFixed(0)}`;
+        }
+
+        function shortTxid(txid) {
+            if (!txid) return "unknown";
+            return `${txid.slice(0, 8)}…${txid.slice(-6)}`;
+        }
+
+        // --- 5. VOLUMETRIC VISUALIZATIONS ---
+        const activeArcs = [];
+        const activeWhaleBeams = [];
+
+        function arcColorForSize(btc) {
+            if (btc >= MEGA_WHALE_BTC) return 0xf97316; // orange
+            if (btc >= WHALE_BTC) return 0xfbbf24;      // amber
+            return 0x10b981;                            // emerald
+        }
+
+        function createArc(startHub, endHub, btc) {
+            const startVec = startHub.pos;
+            const endVec = endHub.pos;
+
+            const midVec = new THREE.Vector3().addVectors(startVec, endVec).multiplyScalar(0.5);
+            const dist = startVec.distanceTo(endVec);
+            const archHeight = dist * 0.35;
+            const midVecDir = midVec.clone().normalize();
+            const controlVec = midVec.clone().add(midVecDir.multiplyScalar(archHeight));
+
+            const curve = new THREE.QuadraticBezierCurve3(startVec, controlVec, endVec);
+            const points = curve.getPoints(24);
+            const curveGeo = new THREE.BufferGeometry().setFromPoints(points);
+
+            const color = arcColorForSize(btc);
+            const curveMat = new THREE.LineBasicMaterial({
+                color: color,
+                transparent: true,
+                opacity: btc >= WHALE_BTC ? 0.6 : 0.3,
+                blending: THREE.AdditiveBlending
+            });
+
+            const line = new THREE.Line(curveGeo, curveMat);
+            globeGroup.add(line);
+
+            const pulseSize = btc >= WHALE_BTC ? 0.45 : 0.2;
+            const pulseGeo = new THREE.SphereGeometry(pulseSize, 8, 8);
+            const pulseMat = new THREE.MeshBasicMaterial({
+                color: color,
+                transparent: true,
+                opacity: 0.9,
+                blending: THREE.AdditiveBlending
+            });
+            const pulseMesh = new THREE.Mesh(pulseGeo, pulseMat);
+            globeGroup.add(pulseMesh);
+
+            activeArcs.push({
+                line: line,
+                pulse: pulseMesh,
+                curve: curve,
+                progress: 0,
+                speed: 0.02 + Math.random() * 0.015,
+                maxLife: 1.0
+            });
+        }
+
+        function triggerWhaleBeam(targetHub, btc) {
+            const startPos = targetHub.pos.clone();
+            const direction = startPos.clone().normalize();
+
+            const beamHeight = 45;
+            const endPos = startPos.clone().add(direction.clone().multiplyScalar(beamHeight));
+
+            const beamColor = 0xf97316; // mega whale orange
+
+            const beamGeo = new THREE.CylinderGeometry(0.1, 1.2, beamHeight, 8, 1, true);
+            beamGeo.translate(0, beamHeight / 2, 0);
+            beamGeo.rotateX(Math.PI / 2);
+
+            const beamMat = new THREE.MeshBasicMaterial({
+                color: beamColor,
+                transparent: true,
+                opacity: 0.8,
+                side: THREE.DoubleSide,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
+            });
+
+            const beamMesh = new THREE.Mesh(beamGeo, beamMat);
+            beamMesh.position.copy(startPos);
+            beamMesh.lookAt(endPos);
+            globeGroup.add(beamMesh);
+
+            const craterGeo = new THREE.RingGeometry(0.1, 1.0, 32);
+            const craterMat = new THREE.MeshBasicMaterial({
+                color: beamColor,
+                side: THREE.DoubleSide,
+                transparent: true,
+                opacity: 0.9,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
+            });
+            const craterMesh = new THREE.Mesh(craterGeo, craterMat);
+            craterMesh.position.copy(startPos.clone().add(direction.clone().multiplyScalar(0.05)));
+            craterMesh.lookAt(new THREE.Vector3(0, 0, 0));
+            globeGroup.add(craterMesh);
+
+            activeWhaleBeams.push({
+                mesh: beamMesh,
+                crater: craterMesh,
+                progress: 0,
+                maxSize: 12 + (btc / 500) * 3
+            });
+        }
+
+        let cameraLockTarget = null;
+        let cameraLockTimer = 0;
+        let screenShakeAmount = 0;
+
+        function lockCameraToWhale(hubPos) {
+            controls.autoRotate = false;
+
+            const outwardVector = hubPos.clone().normalize();
+            const destinationCamPos = hubPos.clone().add(outwardVector.multiplyScalar(40));
+
+            cameraLockTarget = {
+                camPos: destinationCamPos,
+                lookAtTarget: hubPos,
+                duration: 140
+            };
+            cameraLockTimer = cameraLockTarget.duration;
+            screenShakeAmount = 3.5;
+        }
+
+        // --- 6. HUD STATE & TERMINAL ---
+        let trackedMinuteVolumeBtc = 0;
+        let whaleTxCount = 0;
+        let largestTxBtc = 0;
+        const volumeList = [];
+
+        const terminalFeed = document.getElementById("terminal-feed");
+        const aggregateVolEl = document.getElementById("agg-vol");
+        const aggregateVolUsdEl = document.getElementById("agg-vol-usd");
+        const btcPriceEl = document.getElementById("btc-price");
+        const whaleCountEl = document.getElementById("whale-count");
+        const largestTxEl = document.getElementById("largest-tx");
+
+        const megaAlertPanel = document.getElementById("mega-alert-panel");
+        const alertIconContainer = document.getElementById("alert-icon-container");
+        const alertIcon = document.getElementById("alert-icon");
+        const alertSubtitle = document.getElementById("alert-subtitle");
+        const alertTitle = document.getElementById("alert-title");
+        const alertDesc = document.getElementById("alert-desc");
+
+        function logToTerminal(message, type = "info") {
+            const time = new Date().toLocaleTimeString('en-US', { hour12: false });
+            const logRow = document.createElement("div");
+
+            let colorClass = "text-gray-400";
+            if (type === "TX") colorClass = "text-green-400";
+            if (type === "WHALE") colorClass = "text-amber-400 font-bold bg-amber-950/20 px-1 py-0.5 rounded border border-amber-900/30";
+            if (type === "MEGA") colorClass = "text-orange-400 font-bold bg-orange-950/20 px-1 py-0.5 rounded border border-orange-900/30";
+
+            logRow.className = `leading-relaxed tracking-tight ${colorClass}`;
+            logRow.innerHTML = `<span class="text-gray-600">[${time}]</span> ${message}`;
+
+            terminalFeed.prepend(logRow);
+
+            if (terminalFeed.childNodes.length > 30) {
+                terminalFeed.removeChild(terminalFeed.lastChild);
+            }
+        }
+
+        function renderVolume() {
+            aggregateVolEl.textContent = `${formatBtc(trackedMinuteVolumeBtc)} BTC`;
+            aggregateVolUsdEl.textContent = btcUsdPrice > 0 ? formatUsd(trackedMinuteVolumeBtc * btcUsdPrice) : "$—";
+        }
+
+        function updateVolume(btc) {
+            trackedMinuteVolumeBtc += btc;
+            volumeList.push({ timestamp: Date.now(), val: btc });
+            renderVolume();
+        }
+
+        // Clean values older than 1 minute
+        setInterval(() => {
+            const now = Date.now();
+            let change = false;
+            while (volumeList.length > 0 && now - volumeList[0].timestamp > 60000) {
+                trackedMinuteVolumeBtc -= volumeList[0].val;
+                volumeList.shift();
+                change = true;
+            }
+            if (change) {
+                if (trackedMinuteVolumeBtc < 0) trackedMinuteVolumeBtc = 0;
+                renderVolume();
+            }
+        }, 1000);
+
+        function setPipelineHUD(stateText, textColor, bgIndicator) {
+            const statusEl = document.getElementById("protocol-status");
+            const lightEl = document.getElementById("status-pulse-light");
+            const pingEl = document.getElementById("status-pulse-ping");
+
+            statusEl.textContent = stateText;
+            statusEl.className = `text-xs font-bold tracking-wider uppercase ${textColor}`;
+            lightEl.className = `relative inline-flex rounded-full h-3 w-3 ${bgIndicator}`;
+            pingEl.className = `animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${bgIndicator}`;
+        }
+
+        function updateSourceBadge(source, isConnected) {
+            const badge = document.getElementById(`badge-${source}`);
+            if (!badge) return;
+            if (isConnected) {
+                badge.className = "px-1.5 py-0.5 rounded text-[8px] font-bold bg-emerald-950/40 text-emerald-400 border border-emerald-500/30 transition-all duration-300";
+            } else {
+                badge.className = "px-1.5 py-0.5 rounded text-[8px] font-bold bg-gray-900/60 text-gray-600 border border-gray-800 transition-all duration-300";
+            }
+        }
+
+        function triggerWhaleAlert(btc, usd, txid, isMega) {
+            const glow = isMega ? 'border-l-orange-500 glow-orange' : 'border-l-amber-400 glow-amber';
+            megaAlertPanel.className = `glass-panel pointer-events-auto p-4 rounded-lg w-full lg:max-w-md flex flex-col justify-center border-l-4 transition-all duration-300 ${glow}`;
+            alertIconContainer.className = `w-12 h-12 rounded flex items-center justify-center text-white ${isMega ? 'bg-orange-950/60 border border-orange-500/40' : 'bg-amber-950/60 border border-amber-500/40'}`;
+            alertIcon.className = `fa-solid fa-water text-xl animate-pulse ${isMega ? 'text-orange-400' : 'text-amber-400'}`;
+            alertSubtitle.className = `text-[10px] tracking-wider font-bold uppercase ${isMega ? 'text-orange-400' : 'text-amber-400'}`;
+            alertSubtitle.textContent = isMega ? "MEGA WHALE ON-CHAIN MOVEMENT" : "WHALE ON-CHAIN MOVEMENT";
+
+            alertTitle.textContent = `${formatBtc(btc)} BTC MOVED${usd > 0 ? ` (${formatUsd(usd)})` : ''}`;
+            alertDesc.textContent = `Unconfirmed transaction ${shortTxid(txid)} broadcast to the Bitcoin network.`;
+        }
+
+        // --- 7. BTC PRICE FEED (Coinbase primary, Binance fallback) ---
+        let btcUsdPrice = 0;
+
+        async function refreshBtcPrice() {
+            try {
+                const res = await fetch(COINBASE_SPOT_URL);
+                if (!res.ok) throw new Error("coinbase unavailable");
+                const body = await res.json();
+                btcUsdPrice = parseFloat(body.data.amount);
+            } catch (e) {
+                try {
+                    const res = await fetch(BINANCE_PRICE_URL);
+                    if (!res.ok) throw new Error("binance unavailable");
+                    const body = await res.json();
+                    btcUsdPrice = parseFloat(body.price);
+                } catch (e2) {
+                    updateSourceBadge("price", false);
+                    return;
+                }
+            }
+            updateSourceBadge("price", true);
+            btcPriceEl.textContent = `$${btcUsdPrice.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
+            renderVolume();
+        }
+
+        // --- 8. REAL ON-CHAIN TRANSACTION HANDLING ---
+        let txEventCounter = 0;
+        let lastSpeedCalcTime = Date.now();
+
+        // Dedupe so the WS stream and REST failsafe never double-count a tx
+        const seenTxids = new Set();
+        const seenTxidQueue = [];
+
+        function markSeen(txid) {
+            if (!txid) return false;
+            if (seenTxids.has(txid)) return false;
+            seenTxids.add(txid);
+            seenTxidQueue.push(txid);
+            if (seenTxidQueue.length > 5000) {
+                seenTxids.delete(seenTxidQueue.shift());
+            }
+            return true;
+        }
+
+        function trackEventRate() {
+            txEventCounter++;
+            const now = Date.now();
+            const elapsed = now - lastSpeedCalcTime;
+            if (elapsed >= 1000) {
+                const eventsPerSec = Math.round((txEventCounter / elapsed) * 1000);
+                document.getElementById("feed-speed").textContent = `${eventsPerSec} tx/sec`;
+                txEventCounter = 0;
+                lastSpeedCalcTime = now;
+            }
+        }
+
+        // Every call to this function is one REAL unconfirmed Bitcoin transaction.
+        // totalSats = sum of the transaction's outputs (includes change, so it is
+        // an upper bound on the amount actually transferred).
+        function handleTransaction(txid, totalSats, source) {
+            if (!markSeen(txid)) return;
+            trackEventRate();
+
+            const btc = totalSats / SATS_PER_BTC;
+            if (btc < MIN_VISUAL_BTC) return;
+
+            const usd = btcUsdPrice > 0 ? btc * btcUsdPrice : 0;
+            const [startHub, endHub] = pickTwoHubs();
+
+            createArc(startHub, endHub, btc);
+            updateVolume(btc);
+
+            if (btc > largestTxBtc) {
+                largestTxBtc = btc;
+                largestTxEl.textContent = `${formatBtc(largestTxBtc)} BTC`;
+            }
+
+            const usdSuffix = usd > 0 ? ` (${formatUsd(usd)})` : '';
+
+            if (btc >= MEGA_WHALE_BTC) {
+                whaleTxCount++;
+                whaleCountEl.textContent = whaleTxCount;
+                logToTerminal(`🐋 MEGA WHALE | ${formatBtc(btc)} BTC${usdSuffix} | ${shortTxid(txid)} [${source}]`, "MEGA");
+                triggerWhaleAlert(btc, usd, txid, true);
+                triggerWhaleBeam(endHub, btc);
+                lockCameraToWhale(endHub.pos);
+            } else if (btc >= WHALE_BTC) {
+                whaleTxCount++;
+                whaleCountEl.textContent = whaleTxCount;
+                logToTerminal(`🐋 WHALE | ${formatBtc(btc)} BTC${usdSuffix} | ${shortTxid(txid)} [${source}]`, "WHALE");
+                triggerWhaleAlert(btc, usd, txid, false);
+            } else if (btc >= MIN_LOG_BTC) {
+                logToTerminal(`TX | ${formatBtc(btc)} BTC${usdSuffix} | ${shortTxid(txid)} [${source}]`, "TX");
+            }
+        }
+
+        // --- 9. PRIMARY SOURCE: BLOCKCHAIN.COM UNCONFIRMED-TX WEBSOCKET ---
+        let blockchainWs = null;
+        let wsConnected = false;
+        let wsReconnectDelay = 2000;
+        let wsKeepaliveTimer = null;
+
+        function connectBlockchainWs() {
+            try {
+                blockchainWs = new WebSocket(BLOCKCHAIN_WS_URL);
+            } catch (e) {
+                scheduleWsReconnect();
+                return;
+            }
+
+            blockchainWs.onopen = () => {
+                wsConnected = true;
+                wsReconnectDelay = 2000;
+                blockchainWs.send(JSON.stringify({ op: "unconfirmed_sub" }));
+                updateSourceBadge("blockchain", true);
+                setPipelineHUD("LIVE BITCOIN MEMPOOL STREAM", "text-emerald-400 animate-pulse", "bg-emerald-500");
+                logToTerminal("Connected to Blockchain.com — streaming every unconfirmed BTC transaction.", "info");
+                stopMempoolPolling();
+
+                // Keepalive: Blockchain.com drops idle sockets
+                if (wsKeepaliveTimer) clearInterval(wsKeepaliveTimer);
+                wsKeepaliveTimer = setInterval(() => {
+                    if (blockchainWs && blockchainWs.readyState === WebSocket.OPEN) {
+                        blockchainWs.send(JSON.stringify({ op: "ping" }));
+                    }
+                }, 25000);
+            };
+
+            blockchainWs.onmessage = (event) => {
+                let msg;
+                try { msg = JSON.parse(event.data); } catch (e) { return; }
+                if (msg.op !== "utx" || !msg.x || !Array.isArray(msg.x.out)) return;
+
+                const totalSats = msg.x.out.reduce((sum, out) => sum + (out.value || 0), 0);
+                handleTransaction(msg.x.hash, totalSats, "blockchain.com");
+            };
+
+            blockchainWs.onclose = () => handleWsDown();
+            blockchainWs.onerror = () => handleWsDown();
+        }
+
+        function handleWsDown() {
+            if (wsConnected || blockchainWs) {
+                wsConnected = false;
+                blockchainWs = null;
+                updateSourceBadge("blockchain", false);
+                if (wsKeepaliveTimer) clearInterval(wsKeepaliveTimer);
+            }
+            startMempoolPolling();
+            scheduleWsReconnect();
+        }
+
+        function scheduleWsReconnect() {
+            setTimeout(() => {
+                if (!wsConnected) connectBlockchainWs();
+            }, wsReconnectDelay);
+            wsReconnectDelay = Math.min(wsReconnectDelay * 2, 60000);
+        }
+
+        // --- 10. FAILSAFE SOURCE: MEMPOOL.SPACE REST POLLING ---
+        // mempool.space /api/mempool/recent returns the latest mempool txs as
+        // { txid, fee, vsize, value } where value = total output in satoshis.
+        let mempoolPollTimer = null;
+        let mempoolFailures = 0;
+
+        function startMempoolPolling() {
+            if (mempoolPollTimer) return;
+            setPipelineHUD("REST POLLING FAILSAFE", "text-amber-500 font-bold", "bg-amber-500");
+            logToTerminal("WebSocket unavailable — polling mempool.space REST API for recent transactions.", "info");
+
+            mempoolPollTimer = setInterval(async () => {
+                try {
+                    const res = await fetch(MEMPOOL_RECENT_URL);
+                    if (!res.ok) throw new Error("mempool.space unavailable");
+                    const txs = await res.json();
+                    updateSourceBadge("mempool", true);
+                    mempoolFailures = 0;
+
+                    txs.forEach(tx => handleTransaction(tx.txid, tx.value, "mempool.space"));
+                } catch (e) {
+                    mempoolFailures++;
+                    updateSourceBadge("mempool", false);
+                    if (mempoolFailures >= 3 && !wsConnected) {
+                        setPipelineHUD("DISCONNECTED — RETRYING...", "text-rose-500 font-bold", "bg-rose-500");
+                    }
+                }
+            }, 5000);
+        }
+
+        function stopMempoolPolling() {
+            if (mempoolPollTimer) {
+                clearInterval(mempoolPollTimer);
+                mempoolPollTimer = null;
+                updateSourceBadge("mempool", false);
+            }
+        }
+
+        // --- 11. MAIN ENGINE ANIMATION LOOP ---
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const delta = clock.getDelta();
+            const time = clock.getElapsedTime();
+
+            globeGroup.rotation.y += 0.015 * delta;
+
+            hubMap.forEach(hub => {
+                const scale = 1.0 + Math.sin(time * 5.5 + hub.config.lat) * 0.4;
+                hub.ring.scale.set(scale, scale, scale);
+                hub.ring.material.opacity = 0.8 - (scale - 0.6) * 0.5;
+            });
+
+            for (let i = activeArcs.length - 1; i >= 0; i--) {
+                const arc = activeArcs[i];
+                arc.progress += arc.speed;
+
+                if (arc.progress >= 1.0) {
+                    globeGroup.remove(arc.line);
+                    globeGroup.remove(arc.pulse);
+                    arc.line.geometry.dispose();
+                    arc.line.material.dispose();
+                    arc.pulse.geometry.dispose();
+                    arc.pulse.material.dispose();
+                    activeArcs.splice(i, 1);
+                } else {
+                    const nextPos = arc.curve.getPointAt(arc.progress);
+                    arc.pulse.position.copy(nextPos);
+                }
+            }
+
+            for (let i = activeWhaleBeams.length - 1; i >= 0; i--) {
+                const beam = activeWhaleBeams[i];
+                beam.progress += delta;
+
+                const currentScale = beam.progress / 0.5;
+                if (currentScale <= 1.0) {
+                    beam.mesh.scale.set(1 + currentScale * 2, 1, 1 + currentScale * 2);
+                }
+
+                const craterScale = 1.0 + (beam.progress / 2.0) * beam.maxSize;
+                beam.crater.scale.set(craterScale, craterScale, craterScale);
+                beam.crater.material.opacity = 1.0 - (beam.progress / 1.8);
+
+                if (beam.progress >= 1.8) {
+                    globeGroup.remove(beam.mesh);
+                    globeGroup.remove(beam.crater);
+                    beam.mesh.geometry.dispose();
+                    beam.mesh.material.dispose();
+                    beam.crater.geometry.dispose();
+                    beam.crater.material.dispose();
+                    activeWhaleBeams.splice(i, 1);
+                } else {
+                    beam.mesh.material.opacity = 1.0 - (beam.progress / 1.8);
+                }
+            }
+
+            if (screenShakeAmount > 0.05) {
+                screenShakeAmount -= delta * 6.0;
+            } else {
+                screenShakeAmount = 0;
+            }
+
+            if (cameraLockTarget && cameraLockTimer > 0) {
+                cameraLockTimer--;
+
+                const snapSlerpRate = 0.09;
+
+                camera.position.lerp(cameraLockTarget.camPos, snapSlerpRate);
+                controls.target.lerp(cameraLockTarget.lookAtTarget, snapSlerpRate);
+
+                if (screenShakeAmount > 0) {
+                    camera.position.x += (Math.random() - 0.5) * screenShakeAmount;
+                    camera.position.y += (Math.random() - 0.5) * screenShakeAmount;
+                    camera.position.z += (Math.random() - 0.5) * screenShakeAmount;
+                }
+
+                if (cameraLockTimer === 0) {
+                    cameraLockTarget = null;
+                }
+            } else {
+                const homeTarget = new THREE.Vector3(0, 0, 0);
+                controls.target.lerp(homeTarget, 0.05);
+                controls.autoRotate = true;
+            }
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        // --- 12. INITIALIZATION & WINDOW RESIZING ---
+        window.onload = function() {
+            animate();
+
+            logToTerminal("System initialization complete.", "info");
+            logToTerminal(`Whale threshold: ${WHALE_BTC} BTC · Mega whale: ${MEGA_WHALE_BTC} BTC`, "info");
+
+            refreshBtcPrice();
+            setInterval(refreshBtcPrice, 60000);
+
+            connectBlockchainWs();
+
+            // If the WS hasn't opened within 5s (blocked network, sandboxed
+            // iframe, outage), fall back to REST polling until it recovers.
+            setTimeout(() => {
+                if (!wsConnected) startMempoolPolling();
+            }, 5000);
+        };
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
