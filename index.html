@@ -3,7 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WhalePulse 3D — Live BTC Whale Tracker</title>
+    <title>TerraPulse 3D — Earth's Live Vital Signs</title>
+
+    <!-- Social sharing cards (X / Open Graph) -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="TerraPulse 3D — Earth's Live Vital Signs">
+    <meta property="og:description" content="Watch the planet breathe: every earthquake on Earth in real time, the ISS orbiting live, and humanity's vital counters — on a 3D globe in your browser.">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="TerraPulse 3D — Earth's Live Vital Signs">
+    <meta name="twitter:description" content="Watch the planet breathe: every earthquake on Earth in real time, the ISS orbiting live, and humanity's vital counters — on a 3D globe in your browser.">
+    <meta name="description" content="TerraPulse 3D: a live planetary monitor. Every marker is a real earthquake from the USGS feed, plotted at its true coordinates, plus live ISS telemetry and world vital-sign counters.">
+
     <!-- Tailwind CSS for sleek layout -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts for digital/tech typography -->
@@ -23,7 +33,6 @@
         .tech-font {
             font-family: 'Share Tech Mono', monospace;
         }
-        /* Custom scrollbar for HUD log */
         ::-webkit-scrollbar {
             width: 4px;
         }
@@ -37,23 +46,18 @@
         ::-webkit-scrollbar-thumb:hover {
             background: rgba(34, 197, 94, 0.6);
         }
-        /* Glassmorphism panel styling */
         .glass-panel {
             background: rgba(10, 15, 30, 0.7);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.08);
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
         }
-        .glow-green {
-            box-shadow: 0 0 15px rgba(34, 197, 94, 0.4);
-        }
         .glow-amber {
             box-shadow: 0 0 15px rgba(245, 158, 11, 0.5);
         }
-        .glow-orange {
-            box-shadow: 0 0 20px rgba(249, 115, 22, 0.6);
+        .glow-red {
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
         }
-        /* Scanning line effect */
         .scanline::before {
             content: " ";
             display: block;
@@ -83,38 +87,40 @@
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" id="status-pulse-ping"></span>
                         <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500" id="status-pulse-light"></span>
                     </span>
-                    <span class="text-xs text-emerald-400 font-bold tracking-wider uppercase" id="protocol-status">CONNECTING TO BITCOIN NETWORK...</span>
+                    <span class="text-xs text-emerald-400 font-bold tracking-wider uppercase" id="protocol-status">ACQUIRING PLANETARY TELEMETRY...</span>
                 </div>
-                <h1 class="text-xl md:text-2xl font-bold tracking-tight text-white tech-font">WHALEPULSE <span class="text-emerald-500 font-light">3D</span></h1>
-                <p class="text-[10px] text-gray-400 tracking-wider">LIVE ON-CHAIN BTC WHALE RADAR</p>
+                <h1 class="text-xl md:text-2xl font-bold tracking-tight text-white tech-font">TERRAPULSE <span class="text-emerald-500 font-light">3D</span></h1>
+                <p class="text-[10px] text-gray-400 tracking-wider">EARTH'S LIVE VITAL SIGNS — REAL-TIME PLANETARY MONITOR</p>
 
                 <!-- Data Source Status Indicators -->
                 <div class="flex flex-wrap gap-1.5 mt-2.5" id="active-sources-container">
-                    <span class="px-1.5 py-0.5 rounded text-[8px] font-bold bg-gray-900/60 text-gray-600 border border-gray-800 transition-all duration-300" id="badge-blockchain">BLOCKCHAIN.COM WS</span>
-                    <span class="px-1.5 py-0.5 rounded text-[8px] font-bold bg-gray-900/60 text-gray-600 border border-gray-800 transition-all duration-300" id="badge-mempool">MEMPOOL.SPACE REST</span>
-                    <span class="px-1.5 py-0.5 rounded text-[8px] font-bold bg-gray-900/60 text-gray-600 border border-gray-800 transition-all duration-300" id="badge-price">PRICE FEED</span>
+                    <span class="px-1.5 py-0.5 rounded text-[8px] font-bold bg-gray-900/60 text-gray-600 border border-gray-800 transition-all duration-300" id="badge-usgs">USGS SEISMIC FEED</span>
+                    <span class="px-1.5 py-0.5 rounded text-[8px] font-bold bg-gray-900/60 text-gray-600 border border-gray-800 transition-all duration-300" id="badge-iss">ISS TELEMETRY</span>
+                    <button id="sound-toggle" class="px-1.5 py-0.5 rounded text-[8px] font-bold bg-gray-900/60 text-gray-500 border border-gray-800 hover:border-emerald-500/50 hover:text-emerald-400 transition-all duration-300 cursor-pointer" title="Seismic ping on earthquake events">
+                        <i class="fa-solid fa-volume-xmark mr-0.5"></i>AUDIO OFF
+                    </button>
                 </div>
             </div>
 
             <!-- Stats Overview -->
-            <div class="glass-panel pointer-events-auto p-4 rounded-lg flex flex-col gap-3 min-w-[220px] text-right border-r-4 border-r-blue-500">
+            <div class="glass-panel pointer-events-auto p-4 rounded-lg flex flex-col gap-3 min-w-[240px] text-right border-r-4 border-r-blue-500">
                 <div>
-                    <div class="text-[10px] text-gray-400 uppercase tracking-widest">BTC / USD</div>
-                    <div class="text-lg md:text-xl font-bold text-blue-400 tech-font" id="btc-price">$—</div>
+                    <div class="text-[10px] text-gray-400 uppercase tracking-widest">QUAKES TRACKED (LAST 24H+)</div>
+                    <div class="text-lg md:text-xl font-bold text-blue-400 tech-font" id="quake-count">—</div>
                 </div>
                 <div>
-                    <div class="text-[10px] text-gray-400 uppercase tracking-widest">1M TRACKED VOL (&ge;1 BTC TXS)</div>
-                    <div class="text-base font-bold text-white tech-font" id="agg-vol">0.00 BTC</div>
-                    <div class="text-[10px] text-gray-500 tech-font" id="agg-vol-usd">$0</div>
+                    <div class="text-[10px] text-gray-400 uppercase tracking-widest">STRONGEST TRACKED</div>
+                    <div class="text-base font-bold text-white tech-font" id="strongest-quake">—</div>
+                    <div class="text-[10px] text-gray-500 tech-font truncate max-w-[240px]" id="strongest-place"></div>
                 </div>
                 <div class="grid grid-cols-2 gap-2 text-left pt-2 border-t border-gray-800">
                     <div>
-                        <div class="text-[9px] text-amber-400 font-bold uppercase">WHALE TXS</div>
-                        <div class="text-sm font-bold text-white tech-font" id="whale-count">0</div>
+                        <div class="text-[9px] text-gray-300 font-bold uppercase"><i class="fa-solid fa-satellite mr-1 text-[8px]"></i>ISS ALT</div>
+                        <div class="text-sm font-bold text-white tech-font" id="iss-alt">—</div>
                     </div>
                     <div class="text-right">
-                        <div class="text-[9px] text-orange-400 font-bold uppercase">LARGEST TX</div>
-                        <div class="text-sm font-bold text-white tech-font" id="largest-tx">0 BTC</div>
+                        <div class="text-[9px] text-gray-300 font-bold uppercase">ISS SPEED</div>
+                        <div class="text-sm font-bold text-white tech-font" id="iss-speed">—</div>
                     </div>
                 </div>
             </div>
@@ -122,14 +128,31 @@
 
         <!-- MIDDLE SIDEBARS: Floating Metrics -->
         <div class="flex justify-between items-center w-full my-auto pointer-events-none">
-            <!-- Left Data Column -->
+            <!-- Left Data Column: Planetary Vitals -->
             <div class="hidden md:flex flex-col gap-3 glass-panel pointer-events-auto p-4 rounded-lg max-w-xs">
-                <div class="text-xs text-gray-400 border-b border-gray-800 pb-1 font-bold">NETWORK RELAY NODES</div>
-                <div class="flex flex-col gap-2 text-[11px]" id="hubs-list">
-                    <!-- Javascript will populate coordinates -->
+                <div class="text-xs text-gray-400 border-b border-gray-800 pb-1 font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-heart-pulse text-rose-500 animate-pulse"></i> PLANETARY VITALS
+                </div>
+                <div class="flex flex-col gap-2 text-[11px]">
+                    <div class="flex items-center justify-between gap-4 text-gray-400">
+                        <span>Births today (UTC)</span>
+                        <span class="text-emerald-400 font-bold tech-font" id="births-today">0</span>
+                    </div>
+                    <div class="flex items-center justify-between gap-4 text-gray-400">
+                        <span>Deaths today (UTC)</span>
+                        <span class="text-rose-400 font-bold tech-font" id="deaths-today">0</span>
+                    </div>
+                    <div class="flex items-center justify-between gap-4 text-gray-400">
+                        <span>Net growth today</span>
+                        <span class="text-blue-400 font-bold tech-font" id="net-growth">+0</span>
+                    </div>
+                    <div class="flex items-center justify-between gap-4 text-gray-400 border-t border-gray-800 pt-2">
+                        <span>Est. world population</span>
+                        <span class="text-white font-bold tech-font" id="world-pop">—</span>
+                    </div>
                 </div>
                 <div class="text-[9px] text-gray-600 italic border-t border-gray-800 pt-1.5">
-                    Node placement is illustrative — Bitcoin transactions carry no geographic origin.
+                    Vital counters are estimates from UN rates (≈4.2 births / 2.0 deaths per second). Earthquakes and ISS telemetry are live data.
                 </div>
             </div>
 
@@ -137,52 +160,74 @@
             <div class="glass-panel pointer-events-auto p-4 rounded-lg flex flex-col gap-3 max-w-xs text-xs">
                 <div class="text-xs text-gray-400 border-b border-gray-800 pb-1 font-bold uppercase">Legend & Intel</div>
                 <div class="flex items-center gap-2">
-                    <span class="w-2.5 h-2.5 rounded-full bg-green-500 shadow-sm shadow-green-500"></span>
-                    <span class="text-gray-300">Transaction &ge; 1 BTC (arc)</span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500"></span>
+                    <span class="text-gray-300">Quake &lt; M4.5</span>
                 </div>
                 <div class="flex items-center gap-2">
                     <span class="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-sm shadow-amber-400"></span>
-                    <span class="text-amber-300 font-bold">Whale &ge; 50 BTC (arc + alert)</span>
+                    <span class="text-amber-300 font-bold">M4.5 – 6.0 (alert)</span>
                 </div>
                 <div class="flex items-center gap-2">
                     <span class="w-2.5 h-2.5 rounded-full bg-orange-500 shadow-sm shadow-orange-500"></span>
-                    <span class="text-orange-400 font-bold">Mega Whale &ge; 500 BTC (beam)</span>
+                    <span class="text-orange-400 font-bold">M6.0 – 7.0 (beam + camera lock)</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-red-500 shadow-sm shadow-red-500"></span>
+                    <span class="text-red-400 font-bold">M7.0+ MAJOR</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-white shadow-sm shadow-white"></span>
+                    <span class="text-gray-300">International Space Station (live orbit)</span>
                 </div>
                 <div class="text-[10px] text-gray-500 mt-2 border-t border-gray-800 pt-2 italic">
-                    Every event is a real unconfirmed Bitcoin transaction observed in the mempool.
-                    Drag to rotate globe. Scroll to zoom. Camera locks on mega whale movements.
+                    Every marker is a real earthquake from the USGS live feed, plotted at its true coordinates.
+                    Drag to rotate. Scroll to zoom. Camera locks on strong quakes.
                 </div>
             </div>
         </div>
 
-        <!-- BOTTOM ROW: Live Stream Feed & Alert Overlay -->
+        <!-- BOTTOM ROW: Live Event Feed & Alert Overlay -->
         <div class="flex flex-col lg:flex-row gap-4 w-full justify-between items-stretch">
 
             <!-- Realtime Terminal Log -->
             <div class="glass-panel pointer-events-auto p-4 rounded-lg flex-1 min-h-[140px] max-h-[180px] flex flex-col gap-2 overflow-hidden">
                 <div class="flex justify-between items-center border-b border-gray-800 pb-1.5">
                     <div class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider flex items-center gap-2">
-                        <i class="fa-solid fa-terminal animate-pulse"></i> LIVE ON-CHAIN TRANSACTION FEED
+                        <i class="fa-solid fa-terminal animate-pulse"></i> LIVE PLANETARY EVENT FEED
                     </div>
-                    <span class="text-[9px] text-gray-500" id="feed-speed">0 tx/sec</span>
+                    <span class="text-[9px] text-gray-500" id="feed-clock">—</span>
                 </div>
                 <div id="terminal-feed" class="flex-1 overflow-y-auto flex flex-col gap-1 text-[11px] font-mono pr-2">
                     <!-- Logs populated via JavaScript -->
                 </div>
             </div>
 
-            <!-- Whale Flash Notification -->
-            <div class="glass-panel pointer-events-auto p-4 rounded-lg w-full lg:max-w-md flex flex-col justify-center border border-dashed border-amber-500/20 relative overflow-hidden" id="mega-alert-panel">
+            <!-- Seismic Alert Panel -->
+            <div class="glass-panel pointer-events-auto p-4 rounded-lg w-full lg:max-w-md flex flex-col justify-center border border-dashed border-amber-500/20 relative overflow-hidden" id="alert-panel">
                 <div class="absolute inset-0 bg-gradient-to-r from-amber-950/10 to-transparent pointer-events-none"></div>
 
                 <div class="relative z-10 flex items-center gap-4">
                     <div class="w-12 h-12 rounded bg-amber-950/40 border border-amber-500/30 flex items-center justify-center text-amber-500" id="alert-icon-container">
-                        <i class="fa-solid fa-water text-xl animate-bounce" id="alert-icon"></i>
+                        <i class="fa-solid fa-tower-broadcast text-xl animate-pulse" id="alert-icon"></i>
                     </div>
                     <div class="flex-1">
-                        <div class="text-[10px] text-amber-400 tracking-wider font-bold uppercase" id="alert-subtitle">STANDBY FOR WHALE MOVEMENT</div>
-                        <h3 class="text-base md:text-lg font-bold text-white tech-font uppercase tracking-tight" id="alert-title">Monitoring Bitcoin Mempool</h3>
-                        <p class="text-xs text-gray-400" id="alert-desc">Watching every unconfirmed transaction on the network...</p>
+                        <div class="text-[10px] text-amber-400 tracking-wider font-bold uppercase" id="alert-subtitle">SEISMIC SENSORS ARMED</div>
+                        <h3 class="text-base md:text-lg font-bold text-white tech-font uppercase tracking-tight" id="alert-title">Monitoring Planet Earth</h3>
+                        <p class="text-xs text-gray-400" id="alert-desc">Streaming the USGS global earthquake feed and ISS telemetry...</p>
+                    </div>
+                </div>
+
+                <!-- Share row: appears after the first significant quake -->
+                <div class="relative z-10 hidden items-center gap-2 mt-3 pt-2.5 border-t border-gray-800/60" id="share-row">
+                    <button id="share-x-btn" class="px-3 py-1.5 rounded text-[11px] font-bold bg-white text-black hover:bg-gray-200 transition-colors duration-200 flex items-center gap-1.5" title="Share this earthquake on X">
+                        <span class="text-sm leading-none">𝕏</span> SHARE QUAKE
+                    </button>
+                    <button id="card-btn" class="px-3 py-1.5 rounded text-[11px] font-bold bg-gray-900/80 text-gray-300 border border-gray-700 hover:border-amber-500/60 hover:text-amber-300 transition-colors duration-200 flex items-center gap-1.5" title="Download a shareable quake card image">
+                        <i class="fa-solid fa-camera"></i> SAVE CARD
+                    </button>
+                    <div class="ml-auto text-right">
+                        <div class="text-[8px] text-gray-500 uppercase tracking-widest">Since last M4.5+</div>
+                        <div class="text-xs font-bold text-gray-300 tech-font" id="quake-timer">—</div>
                     </div>
                 </div>
             </div>
@@ -201,50 +246,28 @@
     <script>
         // --- 1. CONFIGURATION & CONSTANTS ---
 
-        // Data source endpoints (all free, no API key, CORS/WS-open):
-        //  - Blockchain.com public WebSocket: streams every unconfirmed BTC tx
-        //  - mempool.space REST: recent mempool transactions (polling failsafe)
-        //  - Coinbase / Binance public REST: BTC-USD spot price
-        const BLOCKCHAIN_WS_URL = "wss://ws.blockchain.info/inv";
-        const MEMPOOL_RECENT_URL = "https://mempool.space/api/mempool/recent";
-        const COINBASE_SPOT_URL = "https://api.coinbase.com/v2/prices/BTC-USD/spot";
-        const BINANCE_PRICE_URL = "https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT";
+        // Data source endpoints (all free, no API key, CORS-open):
+        //  - USGS GeoJSON feeds: every earthquake on Earth, updated each minute
+        //  - wheretheiss.at REST: live ISS position, altitude and velocity
+        const USGS_ALL_DAY_URL = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson";
+        const USGS_ALL_HOUR_URL = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson";
+        const ISS_URL = "https://api.wheretheiss.at/v1/satellites/25544";
 
-        // Thresholds (in BTC)
-        const MIN_VISUAL_BTC = 1;    // draw an arc + count toward tracked volume
-        const MIN_LOG_BTC = 2;       // print to the terminal feed
-        const WHALE_BTC = 50;        // whale: highlighted arc + HUD alert
-        const MEGA_WHALE_BTC = 500;  // mega whale: vertical beam + camera lock
+        // Real night-lights texture; a procedural fallback is used if it fails.
+        const EARTH_TEXTURE_URL = "https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-night.jpg";
 
-        const SATS_PER_BTC = 1e8;
+        // Magnitude thresholds
+        const MAG_ALERT = 4.5;   // HUD alert + share row + timer reset
+        const MAG_BEAM = 6.0;    // vertical beam + camera lock
+        const MAG_MAJOR = 7.0;   // red, maximum drama
 
-        const HUB_COORDINATES = [
-            { name: "New York", lat: 40.7128, lon: -74.0060, color: 0x3b82f6 },
-            { name: "London", lat: 51.5074, lon: -0.1278, color: 0x8b5cf6 },
-            { name: "Tokyo", lat: 35.6762, lon: 139.6503, color: 0xec4899 },
-            { name: "Singapore", lat: 1.3521, lon: 103.8198, color: 0x14b8a6 },
-            { name: "Frankfurt", lat: 50.1109, lon: 8.6821, color: 0xf59e0b },
-            { name: "Sydney", lat: -33.8688, lon: 151.2093, color: 0x6366f1 },
-            { name: "Sao Paulo", lat: -23.5505, lon: -46.6333, color: 0x10b981 },
-            { name: "Dubai", lat: 25.2048, lon: 55.2708, color: 0x06b6d4 }
-        ];
+        // Humanity vital-sign rates (UN estimates)
+        const BIRTHS_PER_SEC = 4.2;
+        const DEATHS_PER_SEC = 2.0;
+        const WORLD_POP_BASE = 8250000000; // approx. world population baseline
 
         const GLOBE_RADIUS = 30;
-
-        // UI Setup
-        const hubsListContainer = document.getElementById("hubs-list");
-        HUB_COORDINATES.forEach(hub => {
-            const el = document.createElement("div");
-            el.className = "flex items-center justify-between text-gray-400 gap-4 hover:text-white transition-colors duration-200";
-            el.innerHTML = `
-                <span class="flex items-center gap-1.5">
-                    <span class="w-1.5 h-1.5 rounded-full" style="background-color: #${hub.color.toString(16).padStart(6, '0')}"></span>
-                    ${hub.name}
-                </span>
-                <span class="text-[10px] text-gray-600 font-mono">${hub.lat.toFixed(1)}, ${hub.lon.toFixed(1)}</span>
-            `;
-            hubsListContainer.appendChild(el);
-        });
+        const EARTH_RADIUS_KM = 6371;
 
         // --- 2. THREE.JS BOILERPLATE & SETUP ---
         const container = document.getElementById("canvas-container");
@@ -266,61 +289,48 @@
         controls.maxDistance = 150;
         controls.minDistance = 35;
         controls.autoRotate = true;
-        controls.autoRotateSpeed = 0.6; // Slow majestic rotation
+        controls.autoRotateSpeed = 0.6;
 
-        // Ambient Lights & Directional Accent Lights
-        const ambientLight = new THREE.AmbientLight(0x0f172a, 1.5);
+        const ambientLight = new THREE.AmbientLight(0x334155, 1.4);
         scene.add(ambientLight);
 
-        const dirLight1 = new THREE.DirectionalLight(0x38bdf8, 2.5);
+        const dirLight1 = new THREE.DirectionalLight(0x38bdf8, 2.0);
         dirLight1.position.set(50, 50, 50);
         scene.add(dirLight1);
 
-        const dirLight2 = new THREE.DirectionalLight(0xf43f5e, 1.2);
+        const dirLight2 = new THREE.DirectionalLight(0x10b981, 0.8);
         dirLight2.position.set(-50, -50, -50);
         scene.add(dirLight2);
 
         // --- 3. GEOMETRY CREATION (GLOBE & GRID) ---
+        // NOTE: the globe group does NOT spin on its own — markers sit at real
+        // lat/lon, so the globe stays Earth-fixed and the camera orbits instead.
         const globeGroup = new THREE.Group();
         scene.add(globeGroup);
 
-        // Base Semi-Translucent Sphere
         const baseSphereGeo = new THREE.SphereGeometry(GLOBE_RADIUS - 0.2, 64, 64);
         const baseSphereMat = new THREE.MeshPhongMaterial({
             color: 0x070b19,
             transparent: true,
-            opacity: 0.85,
+            opacity: 0.9,
             shininess: 40,
-            specular: 0x1e293b,
-            bumpScale: 0.1
+            specular: 0x1e293b
         });
         const baseSphere = new THREE.Mesh(baseSphereGeo, baseSphereMat);
         globeGroup.add(baseSphere);
 
-        // Holographic Wireframe Grid Outer Mesh
         const gridGeo = new THREE.SphereGeometry(GLOBE_RADIUS, 36, 18);
         const gridMat = new THREE.MeshBasicMaterial({
             color: 0x1e293b,
             wireframe: true,
             transparent: true,
-            opacity: 0.2,
+            opacity: 0.18,
             blending: THREE.AdditiveBlending
         });
         const gridMesh = new THREE.Mesh(gridGeo, gridMat);
         globeGroup.add(gridMesh);
 
-        // Adding Subtle Grid Accents
-        const gridLatLongMat = new THREE.MeshBasicMaterial({
-            color: 0x059669,
-            wireframe: true,
-            transparent: true,
-            opacity: 0.1,
-            blending: THREE.AdditiveBlending
-        });
-        const gridLatLong = new THREE.Mesh(new THREE.SphereGeometry(GLOBE_RADIUS + 0.1, 72, 36), gridLatLongMat);
-        globeGroup.add(gridLatLong);
-
-        // Procedural Continents Canvas Texture (Sleek tech glowing points)
+        // Procedural continents (fallback skin, roughly equirectangular blobs)
         function createContinentTexture() {
             const canvas = document.createElement("canvas");
             canvas.width = 1024;
@@ -329,21 +339,15 @@
             ctx.fillStyle = "rgba(0,0,0,0)";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            ctx.fillStyle = "rgba(16, 185, 129, 0.2)"; // Emerald
-            ctx.strokeStyle = "rgba(16, 185, 129, 0.4)";
-            ctx.lineWidth = 1;
-
-            // Simple procedurally simulated continent map nodes
             const landClusters = [
-                { x: 300, y: 180, r: 120 }, // NA
-                { x: 420, y: 320, r: 80 },  // SA
-                { x: 520, y: 150, r: 100 }, // Europe
-                { x: 560, y: 260, r: 110 }, // Africa
-                { x: 740, y: 180, r: 140 }, // Asia
-                { x: 840, y: 340, r: 70 }   // Australia
+                { x: 220, y: 160, r: 110 }, // North America
+                { x: 330, y: 330, r: 75 },  // South America
+                { x: 530, y: 140, r: 80 },  // Europe
+                { x: 560, y: 270, r: 100 }, // Africa
+                { x: 750, y: 170, r: 140 }, // Asia
+                { x: 870, y: 350, r: 60 }   // Australia
             ];
 
-            // Render tech circuit matrix on continents
             for (let i = 0; i < canvas.width; i += 8) {
                 for (let j = 0; j < canvas.height; j += 8) {
                     let onLand = false;
@@ -354,7 +358,6 @@
                             break;
                         }
                     }
-
                     if (onLand) {
                         const noise = Math.random();
                         if (noise > 0.65) {
@@ -364,57 +367,31 @@
                     }
                 }
             }
-
             return new THREE.CanvasTexture(canvas);
         }
 
-        const continentTex = createContinentTexture();
-        const continentMat = new THREE.MeshBasicMaterial({
-            map: continentTex,
+        const skinMat = new THREE.MeshBasicMaterial({
+            map: createContinentTexture(),
             transparent: true,
             opacity: 0.85,
             blending: THREE.AdditiveBlending,
             depthWrite: false
         });
-        const continentMesh = new THREE.Mesh(new THREE.SphereGeometry(GLOBE_RADIUS + 0.15, 64, 64), continentMat);
-        globeGroup.add(continentMesh);
+        const skinMesh = new THREE.Mesh(new THREE.SphereGeometry(GLOBE_RADIUS + 0.15, 64, 64), skinMat);
+        globeGroup.add(skinMesh);
 
-        // Relay Node Markers (visual anchors for transaction arcs)
-        const hubGroup = new THREE.Group();
-        globeGroup.add(hubGroup);
-
-        const hubGeometry = new THREE.SphereGeometry(0.5, 16, 16);
-        const hubMap = new Map();
-
-        HUB_COORDINATES.forEach(hub => {
-            const pos = latLongToVector3(hub.lat, hub.lon, GLOBE_RADIUS + 0.2);
-            const mat = new THREE.MeshBasicMaterial({
-                color: hub.color,
-                transparent: true,
-                opacity: 0.9
-            });
-            const mesh = new THREE.Mesh(hubGeometry, mat);
-            mesh.position.copy(pos);
-            hubGroup.add(mesh);
-
-            // Pulse Ring for Hubs
-            const ringGeo = new THREE.RingGeometry(0.7, 1.0, 16);
-            const ringMat = new THREE.MeshBasicMaterial({
-                color: hub.color,
-                transparent: true,
-                opacity: 0.6,
-                side: THREE.DoubleSide,
-                blending: THREE.AdditiveBlending
-            });
-            const ring = new THREE.Mesh(ringGeo, ringMat);
-            ring.position.copy(pos);
-            ring.lookAt(new THREE.Vector3(0, 0, 0)); // Orient flat against sphere
-            hubGroup.add(ring);
-
-            hubMap.set(hub.name, { pos, mesh, ring, config: hub });
+        // Upgrade to the real night-lights texture when it loads.
+        new THREE.TextureLoader().load(EARTH_TEXTURE_URL, (tex) => {
+            skinMat.map = tex;
+            skinMat.opacity = 1.0;
+            skinMat.blending = THREE.NormalBlending;
+            skinMat.needsUpdate = true;
+            logToTerminal("Night-lights satellite texture online.", "info");
+        }, undefined, () => {
+            logToTerminal("Satellite texture unavailable — using holographic skin.", "info");
         });
 
-        // Background Starfield System
+        // Background Starfield
         const starGeo = new THREE.BufferGeometry();
         const starCount = 3000;
         const starPos = new Float32Array(starCount * 3);
@@ -448,118 +425,95 @@
             opacity: 0.75,
             sizeAttenuation: true
         });
-        const starField = new THREE.Points(starGeo, starMat);
-        scene.add(starField);
+        scene.add(new THREE.Points(starGeo, starMat));
 
         // --- 4. UTILITIES ---
+        // Matches three.js SphereGeometry UV mapping, so equirectangular
+        // textures line up with real lat/lon coordinates.
         function latLongToVector3(lat, lon, radius) {
-            const phi = (90 - lat) * (Math.PI / 180);
-            const theta = (lon + 180) * (Math.PI / 180);
-
+            const latRad = lat * (Math.PI / 180);
+            const lonRad = lon * (Math.PI / 180);
             return new THREE.Vector3(
-                -(radius * Math.sin(phi) * Math.sin(theta)),
-                radius * Math.cos(phi),
-                radius * Math.sin(phi) * Math.cos(theta)
+                radius * Math.cos(latRad) * Math.cos(lonRad),
+                radius * Math.sin(latRad),
+                -radius * Math.cos(latRad) * Math.sin(lonRad)
             );
         }
 
-        function pickTwoHubs() {
-            const a = HUB_COORDINATES[Math.floor(Math.random() * HUB_COORDINATES.length)];
-            let b = HUB_COORDINATES[Math.floor(Math.random() * HUB_COORDINATES.length)];
-            while (a === b) {
-                b = HUB_COORDINATES[Math.floor(Math.random() * HUB_COORDINATES.length)];
-            }
-            return [hubMap.get(a.name), hubMap.get(b.name)];
+        function magColor(mag) {
+            if (mag >= MAG_MAJOR) return 0xef4444; // red
+            if (mag >= MAG_BEAM) return 0xf97316;  // orange
+            if (mag >= MAG_ALERT) return 0xfbbf24; // amber
+            return 0x10b981;                       // emerald
         }
 
-        function formatBtc(btc) {
-            if (btc >= 1000) return btc.toLocaleString('en-US', { maximumFractionDigits: 0 });
-            if (btc >= 10) return btc.toFixed(1);
-            return btc.toFixed(2);
+        function magLabel(mag) {
+            if (mag >= MAG_MAJOR) return "MAJOR";
+            if (mag >= MAG_BEAM) return "STRONG";
+            if (mag >= MAG_ALERT) return "MODERATE";
+            return "LIGHT";
         }
 
-        function formatUsd(usd) {
-            if (usd >= 1000000) return `$${(usd / 1000000).toFixed(2)}M`;
-            if (usd >= 1000) return `$${(usd / 1000).toFixed(0)}K`;
-            return `$${usd.toFixed(0)}`;
+        function fmtMag(mag) {
+            return `M${(Math.round(mag * 10) / 10).toFixed(1)}`;
         }
 
-        function shortTxid(txid) {
-            if (!txid) return "unknown";
-            return `${txid.slice(0, 8)}…${txid.slice(-6)}`;
+        function fmtInt(n) {
+            return Math.floor(n).toLocaleString('en-US');
         }
 
-        // --- 5. VOLUMETRIC VISUALIZATIONS ---
-        const activeArcs = [];
-        const activeWhaleBeams = [];
+        // --- 5. QUAKE & ISS VISUALIZATIONS ---
+        const activeRipples = [];
+        const activeBeams = [];
 
-        function arcColorForSize(btc) {
-            if (btc >= MEGA_WHALE_BTC) return 0xf97316; // orange
-            if (btc >= WHALE_BTC) return 0xfbbf24;      // amber
-            return 0x10b981;                            // emerald
-        }
-
-        function createArc(startHub, endHub, btc) {
-            const startVec = startHub.pos;
-            const endVec = endHub.pos;
-
-            const midVec = new THREE.Vector3().addVectors(startVec, endVec).multiplyScalar(0.5);
-            const dist = startVec.distanceTo(endVec);
-            const archHeight = dist * 0.35;
-            const midVecDir = midVec.clone().normalize();
-            const controlVec = midVec.clone().add(midVecDir.multiplyScalar(archHeight));
-
-            const curve = new THREE.QuadraticBezierCurve3(startVec, controlVec, endVec);
-            const points = curve.getPoints(24);
-            const curveGeo = new THREE.BufferGeometry().setFromPoints(points);
-
-            const color = arcColorForSize(btc);
-            const curveMat = new THREE.LineBasicMaterial({
-                color: color,
+        function addQuakeMarker(lat, lon, mag, faded) {
+            const pos = latLongToVector3(lat, lon, GLOBE_RADIUS + 0.2);
+            const size = 0.15 + Math.max(0, mag) * 0.09;
+            const dotGeo = new THREE.SphereGeometry(size, 8, 8);
+            const dotMat = new THREE.MeshBasicMaterial({
+                color: magColor(mag),
                 transparent: true,
-                opacity: btc >= WHALE_BTC ? 0.6 : 0.3,
+                opacity: faded ? 0.35 : 0.9,
                 blending: THREE.AdditiveBlending
             });
+            const dot = new THREE.Mesh(dotGeo, dotMat);
+            dot.position.copy(pos);
+            globeGroup.add(dot);
+            return pos;
+        }
 
-            const line = new THREE.Line(curveGeo, curveMat);
-            globeGroup.add(line);
-
-            const pulseSize = btc >= WHALE_BTC ? 0.45 : 0.2;
-            const pulseGeo = new THREE.SphereGeometry(pulseSize, 8, 8);
-            const pulseMat = new THREE.MeshBasicMaterial({
-                color: color,
+        function triggerRipple(pos, mag) {
+            const ringGeo = new THREE.RingGeometry(0.15, 0.5, 32);
+            const ringMat = new THREE.MeshBasicMaterial({
+                color: magColor(mag),
+                side: THREE.DoubleSide,
                 transparent: true,
                 opacity: 0.9,
-                blending: THREE.AdditiveBlending
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
             });
-            const pulseMesh = new THREE.Mesh(pulseGeo, pulseMat);
-            globeGroup.add(pulseMesh);
+            const ring = new THREE.Mesh(ringGeo, ringMat);
+            ring.position.copy(pos.clone().multiplyScalar(1.003));
+            ring.lookAt(new THREE.Vector3(0, 0, 0));
+            globeGroup.add(ring);
 
-            activeArcs.push({
-                line: line,
-                pulse: pulseMesh,
-                curve: curve,
+            activeRipples.push({
+                mesh: ring,
                 progress: 0,
-                speed: 0.02 + Math.random() * 0.015,
-                maxLife: 1.0
+                maxSize: 3 + Math.max(0, mag) * 1.6
             });
         }
 
-        function triggerWhaleBeam(targetHub, btc) {
-            const startPos = targetHub.pos.clone();
-            const direction = startPos.clone().normalize();
+        function triggerBeam(pos, mag) {
+            const direction = pos.clone().normalize();
+            const beamHeight = 8 + mag * 3;
 
-            const beamHeight = 45;
-            const endPos = startPos.clone().add(direction.clone().multiplyScalar(beamHeight));
-
-            const beamColor = 0xf97316; // mega whale orange
-
-            const beamGeo = new THREE.CylinderGeometry(0.1, 1.2, beamHeight, 8, 1, true);
+            const beamGeo = new THREE.CylinderGeometry(0.1, 0.9, beamHeight, 8, 1, true);
             beamGeo.translate(0, beamHeight / 2, 0);
             beamGeo.rotateX(Math.PI / 2);
 
             const beamMat = new THREE.MeshBasicMaterial({
-                color: beamColor,
+                color: magColor(mag),
                 transparent: true,
                 opacity: 0.8,
                 side: THREE.DoubleSide,
@@ -568,65 +522,81 @@
             });
 
             const beamMesh = new THREE.Mesh(beamGeo, beamMat);
-            beamMesh.position.copy(startPos);
-            beamMesh.lookAt(endPos);
+            beamMesh.position.copy(pos);
+            beamMesh.lookAt(pos.clone().add(direction.clone().multiplyScalar(beamHeight)));
             globeGroup.add(beamMesh);
 
-            const craterGeo = new THREE.RingGeometry(0.1, 1.0, 32);
-            const craterMat = new THREE.MeshBasicMaterial({
-                color: beamColor,
-                side: THREE.DoubleSide,
-                transparent: true,
-                opacity: 0.9,
-                blending: THREE.AdditiveBlending,
-                depthWrite: false
-            });
-            const craterMesh = new THREE.Mesh(craterGeo, craterMat);
-            craterMesh.position.copy(startPos.clone().add(direction.clone().multiplyScalar(0.05)));
-            craterMesh.lookAt(new THREE.Vector3(0, 0, 0));
-            globeGroup.add(craterMesh);
-
-            activeWhaleBeams.push({
-                mesh: beamMesh,
-                crater: craterMesh,
-                progress: 0,
-                maxSize: 12 + (btc / 500) * 3
-            });
+            activeBeams.push({ mesh: beamMesh, progress: 0 });
         }
 
         let cameraLockTarget = null;
         let cameraLockTimer = 0;
         let screenShakeAmount = 0;
 
-        function lockCameraToWhale(hubPos) {
+        function lockCameraToEvent(pos, mag) {
             controls.autoRotate = false;
 
-            const outwardVector = hubPos.clone().normalize();
-            const destinationCamPos = hubPos.clone().add(outwardVector.multiplyScalar(40));
+            const outwardVector = pos.clone().normalize();
+            const destinationCamPos = pos.clone().add(outwardVector.multiplyScalar(40));
 
             cameraLockTarget = {
                 camPos: destinationCamPos,
-                lookAtTarget: hubPos,
+                lookAtTarget: pos,
                 duration: 140
             };
             cameraLockTimer = cameraLockTarget.duration;
-            screenShakeAmount = 3.5;
+            screenShakeAmount = Math.min(5, 1 + (mag - MAG_BEAM) * 1.5);
+        }
+
+        // ISS marker + orbit trail
+        const issMesh = new THREE.Mesh(
+            new THREE.SphereGeometry(0.45, 12, 12),
+            new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.95 })
+        );
+        issMesh.visible = false;
+        globeGroup.add(issMesh);
+
+        const issGlow = new THREE.Mesh(
+            new THREE.SphereGeometry(0.9, 12, 12),
+            new THREE.MeshBasicMaterial({ color: 0x93c5fd, transparent: true, opacity: 0.25, blending: THREE.AdditiveBlending })
+        );
+        issGlow.visible = false;
+        globeGroup.add(issGlow);
+
+        const issTrailPoints = [];
+        let issTrailLine = null;
+        let issTargetPos = null;
+
+        function updateIssTrail() {
+            if (issTrailLine) {
+                globeGroup.remove(issTrailLine);
+                issTrailLine.geometry.dispose();
+                issTrailLine.material.dispose();
+            }
+            if (issTrailPoints.length < 2) return;
+            const geo = new THREE.BufferGeometry().setFromPoints(issTrailPoints);
+            const mat = new THREE.LineBasicMaterial({
+                color: 0x93c5fd,
+                transparent: true,
+                opacity: 0.4,
+                blending: THREE.AdditiveBlending
+            });
+            issTrailLine = new THREE.Line(geo, mat);
+            globeGroup.add(issTrailLine);
         }
 
         // --- 6. HUD STATE & TERMINAL ---
-        let trackedMinuteVolumeBtc = 0;
-        let whaleTxCount = 0;
-        let largestTxBtc = 0;
-        const volumeList = [];
+        let quakeCount = 0;
+        let strongestMag = -Infinity;
 
         const terminalFeed = document.getElementById("terminal-feed");
-        const aggregateVolEl = document.getElementById("agg-vol");
-        const aggregateVolUsdEl = document.getElementById("agg-vol-usd");
-        const btcPriceEl = document.getElementById("btc-price");
-        const whaleCountEl = document.getElementById("whale-count");
-        const largestTxEl = document.getElementById("largest-tx");
+        const quakeCountEl = document.getElementById("quake-count");
+        const strongestQuakeEl = document.getElementById("strongest-quake");
+        const strongestPlaceEl = document.getElementById("strongest-place");
+        const issAltEl = document.getElementById("iss-alt");
+        const issSpeedEl = document.getElementById("iss-speed");
 
-        const megaAlertPanel = document.getElementById("mega-alert-panel");
+        const alertPanel = document.getElementById("alert-panel");
         const alertIconContainer = document.getElementById("alert-icon-container");
         const alertIcon = document.getElementById("alert-icon");
         const alertSubtitle = document.getElementById("alert-subtitle");
@@ -638,9 +608,10 @@
             const logRow = document.createElement("div");
 
             let colorClass = "text-gray-400";
-            if (type === "TX") colorClass = "text-green-400";
-            if (type === "WHALE") colorClass = "text-amber-400 font-bold bg-amber-950/20 px-1 py-0.5 rounded border border-amber-900/30";
-            if (type === "MEGA") colorClass = "text-orange-400 font-bold bg-orange-950/20 px-1 py-0.5 rounded border border-orange-900/30";
+            if (type === "QUAKE") colorClass = "text-green-400";
+            if (type === "ALERT") colorClass = "text-amber-400 font-bold bg-amber-950/20 px-1 py-0.5 rounded border border-amber-900/30";
+            if (type === "MAJOR") colorClass = "text-red-400 font-bold bg-red-950/20 px-1 py-0.5 rounded border border-red-900/30";
+            if (type === "ISS") colorClass = "text-blue-300";
 
             logRow.className = `leading-relaxed tracking-tight ${colorClass}`;
             logRow.innerHTML = `<span class="text-gray-600">[${time}]</span> ${message}`;
@@ -651,32 +622,6 @@
                 terminalFeed.removeChild(terminalFeed.lastChild);
             }
         }
-
-        function renderVolume() {
-            aggregateVolEl.textContent = `${formatBtc(trackedMinuteVolumeBtc)} BTC`;
-            aggregateVolUsdEl.textContent = btcUsdPrice > 0 ? formatUsd(trackedMinuteVolumeBtc * btcUsdPrice) : "$—";
-        }
-
-        function updateVolume(btc) {
-            trackedMinuteVolumeBtc += btc;
-            volumeList.push({ timestamp: Date.now(), val: btc });
-            renderVolume();
-        }
-
-        // Clean values older than 1 minute
-        setInterval(() => {
-            const now = Date.now();
-            let change = false;
-            while (volumeList.length > 0 && now - volumeList[0].timestamp > 60000) {
-                trackedMinuteVolumeBtc -= volumeList[0].val;
-                volumeList.shift();
-                change = true;
-            }
-            if (change) {
-                if (trackedMinuteVolumeBtc < 0) trackedMinuteVolumeBtc = 0;
-                renderVolume();
-            }
-        }, 1000);
 
         function setPipelineHUD(stateText, textColor, bgIndicator) {
             const statusEl = document.getElementById("protocol-status");
@@ -699,212 +644,296 @@
             }
         }
 
-        function triggerWhaleAlert(btc, usd, txid, isMega) {
-            const glow = isMega ? 'border-l-orange-500 glow-orange' : 'border-l-amber-400 glow-amber';
-            megaAlertPanel.className = `glass-panel pointer-events-auto p-4 rounded-lg w-full lg:max-w-md flex flex-col justify-center border-l-4 transition-all duration-300 ${glow}`;
-            alertIconContainer.className = `w-12 h-12 rounded flex items-center justify-center text-white ${isMega ? 'bg-orange-950/60 border border-orange-500/40' : 'bg-amber-950/60 border border-amber-500/40'}`;
-            alertIcon.className = `fa-solid fa-water text-xl animate-pulse ${isMega ? 'text-orange-400' : 'text-amber-400'}`;
-            alertSubtitle.className = `text-[10px] tracking-wider font-bold uppercase ${isMega ? 'text-orange-400' : 'text-amber-400'}`;
-            alertSubtitle.textContent = isMega ? "MEGA WHALE ON-CHAIN MOVEMENT" : "WHALE ON-CHAIN MOVEMENT";
-
-            alertTitle.textContent = `${formatBtc(btc)} BTC MOVED${usd > 0 ? ` (${formatUsd(usd)})` : ''}`;
-            alertDesc.textContent = `Unconfirmed transaction ${shortTxid(txid)} broadcast to the Bitcoin network.`;
-        }
-
-        // --- 7. BTC PRICE FEED (Coinbase primary, Binance fallback) ---
-        let btcUsdPrice = 0;
-
-        async function refreshBtcPrice() {
-            try {
-                const res = await fetch(COINBASE_SPOT_URL);
-                if (!res.ok) throw new Error("coinbase unavailable");
-                const body = await res.json();
-                btcUsdPrice = parseFloat(body.data.amount);
-            } catch (e) {
-                try {
-                    const res = await fetch(BINANCE_PRICE_URL);
-                    if (!res.ok) throw new Error("binance unavailable");
-                    const body = await res.json();
-                    btcUsdPrice = parseFloat(body.price);
-                } catch (e2) {
-                    updateSourceBadge("price", false);
-                    return;
-                }
-            }
-            updateSourceBadge("price", true);
-            btcPriceEl.textContent = `$${btcUsdPrice.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
-            renderVolume();
-        }
-
-        // --- 8. REAL ON-CHAIN TRANSACTION HANDLING ---
-        let txEventCounter = 0;
-        let lastSpeedCalcTime = Date.now();
-
-        // Dedupe so the WS stream and REST failsafe never double-count a tx
-        const seenTxids = new Set();
-        const seenTxidQueue = [];
-
-        function markSeen(txid) {
-            if (!txid) return false;
-            if (seenTxids.has(txid)) return false;
-            seenTxids.add(txid);
-            seenTxidQueue.push(txid);
-            if (seenTxidQueue.length > 5000) {
-                seenTxids.delete(seenTxidQueue.shift());
-            }
-            return true;
-        }
-
-        function trackEventRate() {
-            txEventCounter++;
-            const now = Date.now();
-            const elapsed = now - lastSpeedCalcTime;
-            if (elapsed >= 1000) {
-                const eventsPerSec = Math.round((txEventCounter / elapsed) * 1000);
-                document.getElementById("feed-speed").textContent = `${eventsPerSec} tx/sec`;
-                txEventCounter = 0;
-                lastSpeedCalcTime = now;
+        function updateQuakeStats(mag, place) {
+            quakeCount++;
+            quakeCountEl.textContent = quakeCount.toLocaleString('en-US');
+            if (mag > strongestMag) {
+                strongestMag = mag;
+                strongestQuakeEl.textContent = fmtMag(mag);
+                strongestPlaceEl.textContent = place || "";
             }
         }
 
-        // Every call to this function is one REAL unconfirmed Bitcoin transaction.
-        // totalSats = sum of the transaction's outputs (includes change, so it is
-        // an upper bound on the amount actually transferred).
-        function handleTransaction(txid, totalSats, source) {
-            if (!markSeen(txid)) return;
-            trackEventRate();
+        function triggerQuakeAlert(quake) {
+            const isMajor = quake.mag >= MAG_MAJOR;
+            const isStrong = quake.mag >= MAG_BEAM;
+            const glow = isMajor ? 'border-l-red-500 glow-red' : (isStrong ? 'border-l-orange-500 glow-red' : 'border-l-amber-400 glow-amber');
+            alertPanel.className = `glass-panel pointer-events-auto p-4 rounded-lg w-full lg:max-w-md flex flex-col justify-center border-l-4 transition-all duration-300 ${glow}`;
+            alertIconContainer.className = `w-12 h-12 rounded flex items-center justify-center text-white ${isStrong ? 'bg-red-950/60 border border-red-500/40' : 'bg-amber-950/60 border border-amber-500/40'}`;
+            alertIcon.className = `fa-solid fa-house-crack text-xl animate-pulse ${isStrong ? 'text-red-400' : 'text-amber-400'}`;
+            alertSubtitle.className = `text-[10px] tracking-wider font-bold uppercase ${isStrong ? 'text-red-400' : 'text-amber-400'}`;
+            alertSubtitle.textContent = `${magLabel(quake.mag)} EARTHQUAKE DETECTED`;
 
-            const btc = totalSats / SATS_PER_BTC;
-            if (btc < MIN_VISUAL_BTC) return;
+            alertTitle.textContent = `${fmtMag(quake.mag)} — ${quake.place || 'UNKNOWN LOCATION'}`;
+            alertDesc.textContent = `Depth ${quake.depth != null ? quake.depth.toFixed(0) : '—'} km · ${new Date(quake.time).toUTCString()}`;
 
-            const usd = btcUsdPrice > 0 ? btc * btcUsdPrice : 0;
-            const [startHub, endHub] = pickTwoHubs();
-
-            createArc(startHub, endHub, btc);
-            updateVolume(btc);
-
-            if (btc > largestTxBtc) {
-                largestTxBtc = btc;
-                largestTxEl.textContent = `${formatBtc(largestTxBtc)} BTC`;
-            }
-
-            const usdSuffix = usd > 0 ? ` (${formatUsd(usd)})` : '';
-
-            if (btc >= MEGA_WHALE_BTC) {
-                whaleTxCount++;
-                whaleCountEl.textContent = whaleTxCount;
-                logToTerminal(`🐋 MEGA WHALE | ${formatBtc(btc)} BTC${usdSuffix} | ${shortTxid(txid)} [${source}]`, "MEGA");
-                triggerWhaleAlert(btc, usd, txid, true);
-                triggerWhaleBeam(endHub, btc);
-                lockCameraToWhale(endHub.pos);
-            } else if (btc >= WHALE_BTC) {
-                whaleTxCount++;
-                whaleCountEl.textContent = whaleTxCount;
-                logToTerminal(`🐋 WHALE | ${formatBtc(btc)} BTC${usdSuffix} | ${shortTxid(txid)} [${source}]`, "WHALE");
-                triggerWhaleAlert(btc, usd, txid, false);
-            } else if (btc >= MIN_LOG_BTC) {
-                logToTerminal(`TX | ${formatBtc(btc)} BTC${usdSuffix} | ${shortTxid(txid)} [${source}]`, "TX");
-            }
+            lastBigQuake = quake;
+            shareRow.classList.remove("hidden");
+            shareRow.classList.add("flex");
         }
 
-        // --- 9. PRIMARY SOURCE: BLOCKCHAIN.COM UNCONFIRMED-TX WEBSOCKET ---
-        let blockchainWs = null;
-        let wsConnected = false;
-        let wsReconnectDelay = 2000;
-        let wsKeepaliveTimer = null;
+        // --- 7. VIRAL LOOP: SHARE ON X, QUAKE CARDS, TIMER, SEISMIC AUDIO ---
+        let lastBigQuake = null;
 
-        function connectBlockchainWs() {
-            try {
-                blockchainWs = new WebSocket(BLOCKCHAIN_WS_URL);
-            } catch (e) {
-                scheduleWsReconnect();
-                return;
+        const shareRow = document.getElementById("share-row");
+        const quakeTimerEl = document.getElementById("quake-timer");
+
+        function shareOnX() {
+            if (!lastBigQuake) return;
+            const q = lastBigQuake;
+            const emoji = q.mag >= MAG_MAJOR ? '🚨' : '🌍';
+            const text = `${emoji} ${fmtMag(q.mag)} earthquake just struck ${q.place || 'Earth'}.\n\nWatched it hit live on TerraPulse 3D — the planet's real-time vital signs 📡\n\n${q.url || ''}\n\n#earthquake #TerraPulse`;
+            window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank', 'noopener');
+        }
+
+        // Renders a 1200x675 (X-optimized 16:9) shareable card and downloads it.
+        function downloadQuakeCard() {
+            if (!lastBigQuake) return;
+            const q = lastBigQuake;
+            const c = document.createElement("canvas");
+            c.width = 1200;
+            c.height = 675;
+            const ctx = c.getContext("2d");
+
+            const accentNum = magColor(q.mag);
+            const accent = `#${accentNum.toString(16).padStart(6, '0')}`;
+
+            ctx.fillStyle = "#030712";
+            ctx.fillRect(0, 0, c.width, c.height);
+
+            const glow = ctx.createRadialGradient(600, 340, 50, 600, 340, 620);
+            glow.addColorStop(0, q.mag >= MAG_BEAM ? "rgba(239,68,68,0.16)" : "rgba(251,191,36,0.13)");
+            glow.addColorStop(1, "rgba(3,7,18,0)");
+            ctx.fillStyle = glow;
+            ctx.fillRect(0, 0, c.width, c.height);
+
+            // Seismogram-style trace across the card
+            ctx.strokeStyle = "rgba(16,185,129,0.25)";
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            for (let x = 0; x <= c.width; x += 4) {
+                const centerDist = Math.abs(x - 600) / 600;
+                const amp = Math.max(0, 1 - centerDist * 1.6) * (q.mag * 7) * Math.random();
+                const y = 620 + (Math.random() - 0.5) * amp;
+                x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
             }
+            ctx.stroke();
 
-            blockchainWs.onopen = () => {
-                wsConnected = true;
-                wsReconnectDelay = 2000;
-                blockchainWs.send(JSON.stringify({ op: "unconfirmed_sub" }));
-                updateSourceBadge("blockchain", true);
-                setPipelineHUD("LIVE BITCOIN MEMPOOL STREAM", "text-emerald-400 animate-pulse", "bg-emerald-500");
-                logToTerminal("Connected to Blockchain.com — streaming every unconfirmed BTC transaction.", "info");
-                stopMempoolPolling();
+            ctx.strokeStyle = accent;
+            ctx.lineWidth = 6;
+            ctx.strokeRect(3, 3, c.width - 6, c.height - 6);
 
-                // Keepalive: Blockchain.com drops idle sockets
-                if (wsKeepaliveTimer) clearInterval(wsKeepaliveTimer);
-                wsKeepaliveTimer = setInterval(() => {
-                    if (blockchainWs && blockchainWs.readyState === WebSocket.OPEN) {
-                        blockchainWs.send(JSON.stringify({ op: "ping" }));
-                    }
-                }, 25000);
+            ctx.textAlign = "center";
+            ctx.fillStyle = accent;
+            ctx.font = "bold 34px 'Share Tech Mono', monospace";
+            ctx.fillText(`⚠ ${magLabel(q.mag)} EARTHQUAKE DETECTED`, 600, 120);
+
+            ctx.fillStyle = "#ffffff";
+            ctx.font = "bold 140px 'Share Tech Mono', monospace";
+            ctx.fillText(fmtMag(q.mag), 600, 280);
+
+            ctx.fillStyle = "#d1d5db";
+            ctx.font = "bold 40px 'Share Tech Mono', monospace";
+            const place = (q.place || "UNKNOWN LOCATION").toUpperCase();
+            ctx.fillText(place.length > 44 ? place.slice(0, 42) + "…" : place, 600, 360);
+
+            ctx.fillStyle = "#6b7280";
+            ctx.font = "28px 'JetBrains Mono', monospace";
+            ctx.fillText(`DEPTH ${q.depth != null ? q.depth.toFixed(0) : '—'} KM · ${new Date(q.time).toUTCString()}`, 600, 430);
+            ctx.fillText("SOURCE: USGS LIVE FEED", 600, 472);
+
+            ctx.fillStyle = "#10b981";
+            ctx.font = "bold 30px 'Share Tech Mono', monospace";
+            ctx.fillText("TERRAPULSE 3D — EARTH'S LIVE VITAL SIGNS", 600, 580);
+
+            const a = document.createElement("a");
+            a.download = `terrapulse-${fmtMag(q.mag)}-${(q.id || 'quake').slice(-8)}.png`;
+            a.href = c.toDataURL("image/png");
+            a.click();
+        }
+
+        document.getElementById("share-x-btn").addEventListener("click", shareOnX);
+        document.getElementById("card-btn").addEventListener("click", downloadQuakeCard);
+
+        // Anticipation ticker: how long since the last significant quake
+        setInterval(() => {
+            document.getElementById("feed-clock").textContent = new Date().toUTCString().slice(17, 25) + " UTC";
+            if (!lastBigQuake) return;
+            const s = Math.floor((Date.now() - lastBigQuake.detectedAt) / 1000);
+            const mm = String(Math.floor(s / 60)).padStart(2, "0");
+            const ss = String(s % 60).padStart(2, "0");
+            quakeTimerEl.textContent = `T+${mm}:${ss}`;
+        }, 1000);
+
+        // Seismic ping (WebAudio, no assets). Off by default; browsers require
+        // a user gesture before audio anyway, so the toggle doubles as unlock.
+        let audioCtx = null;
+        let audioOn = false;
+
+        function playSeismicPing(mag) {
+            if (!audioOn || !audioCtx) return;
+            const t = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = "sine";
+            // Bigger quake = deeper rumble
+            const startFreq = Math.max(90, 700 - mag * 80);
+            osc.frequency.setValueAtTime(startFreq, t);
+            osc.frequency.exponentialRampToValueAtTime(Math.max(45, startFreq / 2), t + 0.7);
+            gain.gain.setValueAtTime(Math.min(0.3, 0.08 + mag * 0.03), t);
+            gain.gain.exponentialRampToValueAtTime(0.0001, t + 1.0);
+            osc.connect(gain).connect(audioCtx.destination);
+            osc.start(t);
+            osc.stop(t + 1.05);
+        }
+
+        document.getElementById("sound-toggle").addEventListener("click", function () {
+            audioOn = !audioOn;
+            if (audioOn && !audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
+            this.innerHTML = audioOn
+                ? '<i class="fa-solid fa-volume-high mr-0.5"></i>AUDIO ON'
+                : '<i class="fa-solid fa-volume-xmark mr-0.5"></i>AUDIO OFF';
+            this.className = audioOn
+                ? "px-1.5 py-0.5 rounded text-[8px] font-bold bg-emerald-950/40 text-emerald-400 border border-emerald-500/30 transition-all duration-300 cursor-pointer"
+                : "px-1.5 py-0.5 rounded text-[8px] font-bold bg-gray-900/60 text-gray-500 border border-gray-800 hover:border-emerald-500/50 hover:text-emerald-400 transition-all duration-300 cursor-pointer";
+            if (audioOn) playSeismicPing(3);
+        });
+
+        // --- 8. HUMANITY VITAL COUNTERS (estimates from UN rates) ---
+        const birthsTodayEl = document.getElementById("births-today");
+        const deathsTodayEl = document.getElementById("deaths-today");
+        const netGrowthEl = document.getElementById("net-growth");
+        const worldPopEl = document.getElementById("world-pop");
+
+        function secondsSinceUtcMidnight() {
+            const now = new Date();
+            return now.getUTCHours() * 3600 + now.getUTCMinutes() * 60 + now.getUTCSeconds() + now.getUTCMilliseconds() / 1000;
+        }
+
+        setInterval(() => {
+            const s = secondsSinceUtcMidnight();
+            const births = s * BIRTHS_PER_SEC;
+            const deaths = s * DEATHS_PER_SEC;
+            birthsTodayEl.textContent = fmtInt(births);
+            deathsTodayEl.textContent = fmtInt(deaths);
+            netGrowthEl.textContent = `+${fmtInt(births - deaths)}`;
+            worldPopEl.textContent = fmtInt(WORLD_POP_BASE + (births - deaths));
+        }, 250);
+
+        // --- 9. REAL SEISMIC DATA: USGS FEED HANDLING ---
+        const seenQuakes = new Set();
+        let usgsFailures = 0;
+
+        // Every call to this function is one REAL earthquake from USGS.
+        function handleQuake(feature, isInitial) {
+            if (!feature || !feature.id || seenQuakes.has(feature.id)) return;
+            seenQuakes.add(feature.id);
+
+            const [lon, lat, depth] = feature.geometry.coordinates;
+            const mag = feature.properties.mag != null ? feature.properties.mag : 0;
+            const quake = {
+                id: feature.id,
+                mag: mag,
+                place: feature.properties.place,
+                time: feature.properties.time,
+                url: feature.properties.url,
+                depth: depth,
+                detectedAt: Date.now()
             };
 
-            blockchainWs.onmessage = (event) => {
-                let msg;
-                try { msg = JSON.parse(event.data); } catch (e) { return; }
-                if (msg.op !== "utx" || !msg.x || !Array.isArray(msg.x.out)) return;
+            const pos = addQuakeMarker(lat, lon, mag, isInitial);
+            updateQuakeStats(mag, quake.place);
 
-                const totalSats = msg.x.out.reduce((sum, out) => sum + (out.value || 0), 0);
-                handleTransaction(msg.x.hash, totalSats, "blockchain.com");
-            };
+            if (isInitial) return; // backfill: markers + stats only, no drama
 
-            blockchainWs.onclose = () => handleWsDown();
-            blockchainWs.onerror = () => handleWsDown();
-        }
+            triggerRipple(pos, mag);
+            playSeismicPing(mag);
 
-        function handleWsDown() {
-            if (wsConnected || blockchainWs) {
-                wsConnected = false;
-                blockchainWs = null;
-                updateSourceBadge("blockchain", false);
-                if (wsKeepaliveTimer) clearInterval(wsKeepaliveTimer);
+            const logType = mag >= MAG_MAJOR ? "MAJOR" : (mag >= MAG_ALERT ? "ALERT" : "QUAKE");
+            logToTerminal(`${mag >= MAG_ALERT ? '⚠️ ' : ''}${fmtMag(mag)} | ${quake.place || 'unknown location'} | depth ${depth != null ? depth.toFixed(0) : '—'} km`, logType);
+
+            if (mag >= MAG_ALERT) {
+                triggerQuakeAlert(quake);
             }
-            startMempoolPolling();
-            scheduleWsReconnect();
+            if (mag >= MAG_BEAM) {
+                triggerBeam(pos, mag);
+                lockCameraToEvent(pos, mag);
+            }
         }
 
-        function scheduleWsReconnect() {
-            setTimeout(() => {
-                if (!wsConnected) connectBlockchainWs();
-            }, wsReconnectDelay);
-            wsReconnectDelay = Math.min(wsReconnectDelay * 2, 60000);
-        }
+        async function fetchQuakes(url, isInitial) {
+            try {
+                const res = await fetch(url);
+                if (!res.ok) throw new Error("usgs unavailable");
+                const geo = await res.json();
+                updateSourceBadge("usgs", true);
+                usgsFailures = 0;
+                setPipelineHUD("LIVE PLANETARY TELEMETRY", "text-emerald-400 animate-pulse", "bg-emerald-500");
 
-        // --- 10. FAILSAFE SOURCE: MEMPOOL.SPACE REST POLLING ---
-        // mempool.space /api/mempool/recent returns the latest mempool txs as
-        // { txid, fee, vsize, value } where value = total output in satoshis.
-        let mempoolPollTimer = null;
-        let mempoolFailures = 0;
+                // Oldest first so events replay in chronological order
+                const features = geo.features.slice().reverse();
+                features.forEach(f => handleQuake(f, isInitial));
 
-        function startMempoolPolling() {
-            if (mempoolPollTimer) return;
-            setPipelineHUD("REST POLLING FAILSAFE", "text-amber-500 font-bold", "bg-amber-500");
-            logToTerminal("WebSocket unavailable — polling mempool.space REST API for recent transactions.", "info");
-
-            mempoolPollTimer = setInterval(async () => {
-                try {
-                    const res = await fetch(MEMPOOL_RECENT_URL);
-                    if (!res.ok) throw new Error("mempool.space unavailable");
-                    const txs = await res.json();
-                    updateSourceBadge("mempool", true);
-                    mempoolFailures = 0;
-
-                    txs.forEach(tx => handleTransaction(tx.txid, tx.value, "mempool.space"));
-                } catch (e) {
-                    mempoolFailures++;
-                    updateSourceBadge("mempool", false);
-                    if (mempoolFailures >= 3 && !wsConnected) {
-                        setPipelineHUD("DISCONNECTED — RETRYING...", "text-rose-500 font-bold", "bg-rose-500");
+                if (isInitial) {
+                    logToTerminal(`Seismic backfill complete — ${geo.features.length} earthquakes in the last 24h.`, "info");
+                    // Show the strongest recent quake in the alert panel on standby
+                    const strongest = geo.features.reduce((a, b) =>
+                        ((b.properties.mag || 0) > ((a && a.properties.mag) || 0) ? b : a), null);
+                    if (strongest && strongest.properties.mag >= MAG_ALERT) {
+                        const [slon, slat, sdepth] = strongest.geometry.coordinates;
+                        triggerQuakeAlert({
+                            id: strongest.id,
+                            mag: strongest.properties.mag,
+                            place: strongest.properties.place,
+                            time: strongest.properties.time,
+                            url: strongest.properties.url,
+                            depth: sdepth,
+                            detectedAt: strongest.properties.time
+                        });
                     }
                 }
-            }, 5000);
+            } catch (e) {
+                usgsFailures++;
+                updateSourceBadge("usgs", false);
+                if (usgsFailures >= 2) {
+                    setPipelineHUD("RECONNECTING TO SENSORS...", "text-rose-500 font-bold", "bg-rose-500");
+                }
+            }
         }
 
-        function stopMempoolPolling() {
-            if (mempoolPollTimer) {
-                clearInterval(mempoolPollTimer);
-                mempoolPollTimer = null;
-                updateSourceBadge("mempool", false);
+        // --- 10. LIVE ISS TELEMETRY ---
+        let issFailures = 0;
+
+        async function pollIss() {
+            try {
+                const res = await fetch(ISS_URL);
+                if (!res.ok) throw new Error("iss api unavailable");
+                const d = await res.json();
+                updateSourceBadge("iss", true);
+
+                const altScale = 1 + (d.altitude / EARTH_RADIUS_KM) * 4; // exaggerate for visibility
+                issTargetPos = latLongToVector3(d.latitude, d.longitude, GLOBE_RADIUS * altScale);
+
+                if (!issMesh.visible) {
+                    issMesh.visible = true;
+                    issGlow.visible = true;
+                    issMesh.position.copy(issTargetPos);
+                    logToTerminal(`ISS telemetry locked — ${d.altitude.toFixed(0)} km up at ${Math.round(d.velocity).toLocaleString()} km/h.`, "ISS");
+                }
+
+                issTrailPoints.push(issTargetPos.clone());
+                if (issTrailPoints.length > 90) issTrailPoints.shift();
+                updateIssTrail();
+
+                issAltEl.textContent = `${d.altitude.toFixed(0)} km`;
+                issSpeedEl.textContent = `${Math.round(d.velocity).toLocaleString('en-US')} km/h`;
+                issFailures = 0;
+            } catch (e) {
+                issFailures++;
+                if (issFailures >= 3) updateSourceBadge("iss", false);
             }
         }
 
@@ -917,55 +946,45 @@
             const delta = clock.getDelta();
             const time = clock.getElapsedTime();
 
-            globeGroup.rotation.y += 0.015 * delta;
+            // ISS drifts smoothly toward its latest telemetry fix
+            if (issTargetPos && issMesh.visible) {
+                issMesh.position.lerp(issTargetPos, 0.02);
+                issGlow.position.copy(issMesh.position);
+                const pulse = 1 + Math.sin(time * 3) * 0.25;
+                issGlow.scale.set(pulse, pulse, pulse);
+            }
 
-            hubMap.forEach(hub => {
-                const scale = 1.0 + Math.sin(time * 5.5 + hub.config.lat) * 0.4;
-                hub.ring.scale.set(scale, scale, scale);
-                hub.ring.material.opacity = 0.8 - (scale - 0.6) * 0.5;
-            });
+            for (let i = activeRipples.length - 1; i >= 0; i--) {
+                const r = activeRipples[i];
+                r.progress += delta;
 
-            for (let i = activeArcs.length - 1; i >= 0; i--) {
-                const arc = activeArcs[i];
-                arc.progress += arc.speed;
+                const scale = 1 + (r.progress / 2.0) * r.maxSize;
+                r.mesh.scale.set(scale, scale, scale);
+                r.mesh.material.opacity = Math.max(0, 0.9 - (r.progress / 2.2));
 
-                if (arc.progress >= 1.0) {
-                    globeGroup.remove(arc.line);
-                    globeGroup.remove(arc.pulse);
-                    arc.line.geometry.dispose();
-                    arc.line.material.dispose();
-                    arc.pulse.geometry.dispose();
-                    arc.pulse.material.dispose();
-                    activeArcs.splice(i, 1);
-                } else {
-                    const nextPos = arc.curve.getPointAt(arc.progress);
-                    arc.pulse.position.copy(nextPos);
+                if (r.progress >= 2.2) {
+                    globeGroup.remove(r.mesh);
+                    r.mesh.geometry.dispose();
+                    r.mesh.material.dispose();
+                    activeRipples.splice(i, 1);
                 }
             }
 
-            for (let i = activeWhaleBeams.length - 1; i >= 0; i--) {
-                const beam = activeWhaleBeams[i];
+            for (let i = activeBeams.length - 1; i >= 0; i--) {
+                const beam = activeBeams[i];
                 beam.progress += delta;
 
                 const currentScale = beam.progress / 0.5;
                 if (currentScale <= 1.0) {
                     beam.mesh.scale.set(1 + currentScale * 2, 1, 1 + currentScale * 2);
                 }
+                beam.mesh.material.opacity = Math.max(0, 1.0 - (beam.progress / 2.2));
 
-                const craterScale = 1.0 + (beam.progress / 2.0) * beam.maxSize;
-                beam.crater.scale.set(craterScale, craterScale, craterScale);
-                beam.crater.material.opacity = 1.0 - (beam.progress / 1.8);
-
-                if (beam.progress >= 1.8) {
+                if (beam.progress >= 2.2) {
                     globeGroup.remove(beam.mesh);
-                    globeGroup.remove(beam.crater);
                     beam.mesh.geometry.dispose();
                     beam.mesh.material.dispose();
-                    beam.crater.geometry.dispose();
-                    beam.crater.material.dispose();
-                    activeWhaleBeams.splice(i, 1);
-                } else {
-                    beam.mesh.material.opacity = 1.0 - (beam.progress / 1.8);
+                    activeBeams.splice(i, 1);
                 }
             }
 
@@ -979,7 +998,6 @@
                 cameraLockTimer--;
 
                 const snapSlerpRate = 0.09;
-
                 camera.position.lerp(cameraLockTarget.camPos, snapSlerpRate);
                 controls.target.lerp(cameraLockTarget.lookAtTarget, snapSlerpRate);
 
@@ -1006,19 +1024,15 @@
         window.onload = function() {
             animate();
 
-            logToTerminal("System initialization complete.", "info");
-            logToTerminal(`Whale threshold: ${WHALE_BTC} BTC · Mega whale: ${MEGA_WHALE_BTC} BTC`, "info");
+            logToTerminal("TerraPulse systems online. All data feeds are live and free — no API keys.", "info");
+            logToTerminal(`Alert threshold: ${fmtMag(MAG_ALERT)} · Camera lock: ${fmtMag(MAG_BEAM)}+`, "info");
 
-            refreshBtcPrice();
-            setInterval(refreshBtcPrice, 60000);
+            // Backfill last 24h of seismic activity, then watch the live feed
+            fetchQuakes(USGS_ALL_DAY_URL, true);
+            setInterval(() => fetchQuakes(USGS_ALL_HOUR_URL, false), 60000);
 
-            connectBlockchainWs();
-
-            // If the WS hasn't opened within 5s (blocked network, sandboxed
-            // iframe, outage), fall back to REST polling until it recovers.
-            setTimeout(() => {
-                if (!wsConnected) startMempoolPolling();
-            }, 5000);
+            pollIss();
+            setInterval(pollIss, 5000);
         };
 
         window.addEventListener('resize', () => {
