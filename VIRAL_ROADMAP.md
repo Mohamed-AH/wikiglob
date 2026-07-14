@@ -1,44 +1,53 @@
-# WhalePulse 3D — Viral Growth Roadmap for X.com
+# TerraPulse 3D — a new idea: Earth's live vital signs
 
-The core insight: **every whale transaction is a natural tweet moment.** The app's job
-is to turn each of those moments into something a viewer can post in one click, and to
-give people a reason to keep the tab open (and screen-record it) while they wait.
+The pivot: from tracking one asset (BTC whales) to tracking **the planet itself**.
+TerraPulse is a real-time planetary monitor — every earthquake on Earth as it happens
+(live USGS feed, plotted at true coordinates), the ISS orbiting live, and humanity's
+vital counters ticking. No API keys, no backend, one HTML file.
 
-## ✅ Shipped (in `index.html`)
+## Why this can go viral on X
 
-1. **One-click "Share on 𝕏" button** — appears on every whale/mega-whale alert with a
-   pre-filled hype tweet (amount, USD value, hashtags). This is the viral loop: every
-   whale event becomes a potential tweet, written for the user.
-2. **Downloadable Whale Card** — a 1200×675 (X-optimized 16:9) PNG generated on canvas:
-   big BTC amount, USD value, txid, timestamp, WhalePulse branding. Screenshot-quality
-   content with zero effort.
-3. **"Since last whale" ticker** — anticipation/FOMO. People keep the tab open, streamers
-   leave it on screen, viewers screen-record the moment the timer resets.
-4. **Sonar ping audio** (WebAudio, no assets, off by default) — deeper ping for mega
-   whales. Makes screen recordings dramatically more shareable.
-5. **Open Graph / Twitter Card meta tags** — the link unfurls as a proper card when
-   shared on X instead of a bare URL.
+- **Earthquakes are organic viral moments.** Every M5.5+ quake trends within minutes.
+  TerraPulse gives people the "I watched it hit live" post, pre-written, with a link to
+  the official USGS event page for credibility.
+- **It's real.** Every marker is a genuine USGS event at its true location. Real data
+  screenshots get quote-tweeted; fake globes get ratioed.
+- **It's a leave-it-open spectacle.** Live ISS orbit + births/deaths counters + a
+  ticking "since last M4.5+" timer keep the tab open and make screen recordings
+  interesting even between quakes.
 
-## 🔜 High-leverage next steps (no backend needed)
+## The candidate ideas that were considered
 
-6. **Session records + "you witnessed" framing** — "Largest whale you've witnessed:
-   1,204 BTC" with its own share button. Bragging rights are the oldest viral mechanic.
-7. **Replay mode / GIF moment** — after a mega whale, offer "replay the beam" so people
-   can screen-record the exact 4-second money shot.
-8. **Milestone toasts** — "🔥 10th whale this hour — the ocean is boiling" with share
-   button. Turns aggregate activity into narrative.
-9. **?tx= deep links** — sharing a whale links back to the app with that whale's card
-   pre-loaded, so every share is also an acquisition funnel.
-10. **Streamer mode** — hide HUD chrome, giant alert overlays, for crypto streamers and
-    24/7 "whale watch" YouTube/X live streams. One big streamer = thousands of installs.
+1. **TerraPulse — live planetary monitor** ← built (real data + organic news moments)
+2. **Daily reflex game with a Wordle-style emoji share grid** — the most proven viral
+   mechanic, but zero utility and a crowded genre.
+3. **Bluesky firehose visualizer** — spectacular live data, but promoting a rival
+   network's firehose on X is an awkward pitch.
+4. **Space-weather / aurora alert radar** — great during solar storms, dead in between.
+5. **"Your life in weeks" mortality visualizer** — one strong share, no reason to return.
 
-## 🔭 Bigger bets (need a tiny backend or bot)
+## Shipped in `index.html`
 
-11. **@WhalePulse3D alert bot on X** — auto-posts mega whale cards in real time. The bot
-    account *is* the marketing channel; the site is the landing page.
-12. **Live viewer count** — "🔴 2,431 watching the mempool right now" (needs a
-    websocket presence server). Social proof + event feeling.
-13. **Daily "Whale Report" auto-thread** — top 5 whales of the day as a card thread,
-    posted at a fixed time so people expect it.
-14. **Prediction mini-game** — "will a 500+ BTC whale surface in the next 10 minutes?"
-    Tap to vote, share your streak. Zero-money gamification, huge retention.
+1. **Live USGS earthquake feed** — 24h backfill on load, then minute-by-minute polling;
+   ripples, magnitude-scaled beams, camera lock + screen shake on M6+.
+2. **Live ISS telemetry** — position, altitude, speed, orbit trail (wheretheiss.at).
+3. **Humanity vitals** — births/deaths/net growth today + est. world population
+   (clearly labeled as UN-rate estimates; the seismic/ISS data is real).
+4. **One-click "Share on 𝕏"** — pre-filled quake tweet including the official USGS
+   event URL.
+5. **Downloadable quake card** — 1200×675 PNG with a seismogram-style trace.
+6. **Seismic audio pings** — deeper rumble for bigger quakes (WebAudio, toggle, off by
+   default).
+7. **Real night-lights Earth texture** with a procedural holographic fallback.
+
+## Next growth bets
+
+- **?quake=<id> deep links** — a shared quake links back to its card. Every share
+  becomes an acquisition funnel.
+- **"You felt it?" localizer** — geolocate (opt-in) and show distance to the epicenter:
+  "This quake was 214 km from you." Instantly personal, instantly shareable.
+- **@TerraPulse3D bot on X** — auto-posts quake cards for M5.5+ events (needs a tiny
+  worker). The bot account becomes the marketing channel; the site is the landing page.
+- **More vital signs** — live wildfires (NASA FIRMS), volcano advisories, hurricane
+  tracks in season. Each layer is another audience.
+- **Streamer mode** — chrome-free fullscreen for 24/7 "Earth watch" live streams.
